@@ -58,7 +58,7 @@ export default function ConversationStarters() {
         />
 
         <Button
-          label="Gimme Starter"
+          label="A little push🫸💨"
           theme="primary"
           onPress={handleShowStarter}
         />

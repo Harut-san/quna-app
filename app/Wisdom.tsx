@@ -59,7 +59,7 @@ export default function Wisdom() {
         />
 
         <Button
-          label="Show me some Wisdom"
+          label="Show me some wisdom"
           theme="primary"
           onPress={handleShowWisdom}
         />

@@ -58,7 +58,7 @@ export default function DailyMotivation() {
         />
 
         <Button
-          label="Gimme Motivation"
+          label="Why should I even? 🥇"
           theme="primary"
           onPress={handleShowMotivation}
         />

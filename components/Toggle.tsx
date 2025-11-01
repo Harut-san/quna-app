@@ -16,7 +16,7 @@ const Toggle: React.FC<ToggleProps> = ({ label, isOn, onToggle, onLabel, offLabe
         {label}: {isOn ? onLabel : offLabel}
       </Text>
       <Switch
-        trackColor={{ false: '#767577', true: '#00bfa6' }}
+        trackColor={{ false: '#767577', true: '#fff' }}
         thumbColor={isOn ? '#f4f3f4' : '#f4f3f4'}
         ios_backgroundColor="#3e3e3e"
         onValueChange={onToggle}

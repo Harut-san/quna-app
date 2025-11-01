@@ -58,7 +58,7 @@ export default function Mindfulness() {
         />
 
         <Button
-          label="Gimme Mindfulness"
+          label="Gimme mindfulness 😉"
           theme="primary"
           onPress={handleShowPrompt}
         />

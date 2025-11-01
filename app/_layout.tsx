@@ -45,7 +45,7 @@ export default function RootLayout() {
 
 const commonOptions = {
   headerStyle: { backgroundColor: "#101923" },
-  headerTintColor: "#00bfa6",
+  headerTintColor: "#fff",
   headerTitleAlign: "center", //help
   headerShadowVisible: false, //help
 

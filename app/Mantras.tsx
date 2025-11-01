@@ -58,7 +58,7 @@ export default function Mantras() {
         />
 
         <Button
-          label="Gimme Mantra"
+          label="Manifesting now 🧘‍♀️"
           theme="primary"
           onPress={handleShowMantra}
         />
