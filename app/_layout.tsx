@@ -1,12 +1,13 @@
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { LogBox } from "react-native";
+import { LanguageProvider } from "../contexts/LanguageContext";
 
 LogBox.ignoreAllLogs(true); // Ignore all log notifications
 
 export default function RootLayout() {
   return (
-    <>
+    <LanguageProvider>
       <StatusBar style="light" /> {/* sets clock and battery style to light */}
       <Stack>
         <Stack.Screen
@@ -39,7 +40,7 @@ export default function RootLayout() {
           options={{ title: "Mindfulness", ...commonOptions }}
         />
       </Stack>
-    </>
+    </LanguageProvider>
   );
 }
 

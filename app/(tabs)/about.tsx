@@ -1,10 +1,14 @@
 import { StyleSheet, View } from "react-native";
 import Button from "../../components/Button";
 import ImageViewer from "../../components/ImageViewer";
+import { useLanguage } from "../../contexts/LanguageContext";
+import { APP_VERSION } from "../../constants/AppInfo";
 
 const PlaceholderImage = require("../../assets/images/background-image.png");
 
 export default function AboutScreen() {
+  const { translate } = useLanguage();
+
   return (
     <View style={styles.container}>
       <View style={styles.imageContainer}>
@@ -12,12 +16,14 @@ export default function AboutScreen() {
       </View>
       <View style={styles.footerContainer}>
         <Button
-          label="Begin Your Journey"
+          label={translate("beginYourJourney")}
           theme="primary"
-          onPress={() => alert("Quna v1.0.0\n© 2024 Quna Inc.")}
+          onPress={() => alert(`Quna v${APP_VERSION}\n© 2024 ${translate("qunaInc")}.`)}
         />
-        <Button label="disabled" theme="disabled" />
-        <Button label="secondary" theme="secondary" />
+        <Button label={translate("disabled")}
+          theme="disabled" />
+        <Button label={translate("secondary")}
+          theme="secondary" />
       </View>
     </View>
   );

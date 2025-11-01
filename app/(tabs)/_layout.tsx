@@ -1,7 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
+import { useLanguage } from "../../contexts/LanguageContext";
 
 export default function TabsLayout() {
+  const { translate } = useLanguage();
+
   return (
     <Tabs
       screenOptions={{
@@ -50,7 +53,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          headerTitle: "Settings",
+          headerTitle: translate("settings"),
           tabBarLabel(props) {
             return null; // Hide tab label
           },

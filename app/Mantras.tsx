@@ -1,18 +1,26 @@
 import Quote from "@/components/Quote";
 import { useFonts } from "expo-font";
 import { LinearGradient } from "expo-linear-gradient";
-import { useState } from "react";
+import { useState, useLayoutEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Button from "../components/Button";
 import { mantras } from "../constants/Content";
+import { useLanguage } from "../contexts/LanguageContext";
+import { useNavigation } from "@react-navigation/native";
 
 export default function Mantras() {
   const [fontsLoaded] = useFonts({
     TimesNewRoman: require("../assets/fonts/TimesNewRoman.ttf"),
   });
+  const { translate } = useLanguage();
+  const navigation = useNavigation();
+
+  useLayoutEffect(() => {
+    navigation.setOptions({ headerTitle: translate('mantras') });
+  }, [navigation, translate]);
+
   const [currentMantra, setCurrentMantra] = useState({
-    quote:
-      "Harness the power of your own voice. Repeat these words to center your mind and spirit.",
+    quote: translate("mantraIntro"),
     author: "",
   });
   const [history, setHistory] = useState<{ quote: string; author: string }[]>(
@@ -27,7 +35,8 @@ export default function Mantras() {
   const handleShowMantra = () => {
     setHistory([...history, currentMantra]);
     const randomIndex = Math.floor(Math.random() * mantras.length);
-    setCurrentMantra({ quote: mantras[randomIndex], author: "" });
+    const selectedMantraKey = mantras[randomIndex];
+    setCurrentMantra({ quote: translate(selectedMantraKey), author: "" });
   };
 
   const handlePreviousMantra = () => {
@@ -53,13 +62,13 @@ export default function Mantras() {
       ) : null}
       <View style={styles.buttonContainerSticky}>
         <Button
-          label="Previous"
+          label={translate("previous")}
           onPress={handlePreviousMantra}
           theme={history.length === 0 ? "disabled" : "secondary"}
         />
 
         <Button
-          label="Manifesting now 🧘‍♀️"
+          label={translate("manifestingNow")}
           theme="primary"
           onPress={handleShowMantra}
         />

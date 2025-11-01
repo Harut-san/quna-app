@@ -1,18 +1,26 @@
 import Quote from "@/components/Quote";
 import { useFonts } from "expo-font";
 import { LinearGradient } from "expo-linear-gradient";
-import { useState } from "react";
+import { useState, useLayoutEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Button from "../components/Button";
 import { starters } from "../constants/Content";
+import { useLanguage } from "../contexts/LanguageContext";
+import { useNavigation } from "@react-navigation/native";
 
 export default function ConversationStarters() {
   const [fontsLoaded] = useFonts({
     TimesNewRoman: require("../assets/fonts/TimesNewRoman.ttf"),
   });
+  const { translate } = useLanguage();
+  const navigation = useNavigation();
+
+  useLayoutEffect(() => {
+    navigation.setOptions({ headerTitle: translate('conversationStarters') });
+  }, [navigation, translate]);
+
   const [currentStarter, setCurrentStarter] = useState({
-    quote:
-      "Break the ice and spark meaningful connections. Let these questions guide your next conversation.",
+    quote: translate("conversationStarterIntro"),
     author: "",
   });
   const [history, setHistory] = useState<{ quote: string; author: string }[]>(
@@ -27,7 +35,8 @@ export default function ConversationStarters() {
   const handleShowStarter = () => {
     setHistory([...history, currentStarter]);
     const randomIndex = Math.floor(Math.random() * starters.length);
-    setCurrentStarter({ quote: starters[randomIndex], author: "" });
+    const selectedStarterKey = starters[randomIndex];
+    setCurrentStarter({ quote: translate(selectedStarterKey), author: "" });
   };
 
   const handlePreviousStarter = () => {
@@ -52,13 +61,13 @@ export default function ConversationStarters() {
       ) : null}
       <View style={styles.buttonContainerSticky}>
         <Button
-          label="Previous"
+          label={translate("previous")}
           onPress={handlePreviousStarter}
           theme={history.length === 0 ? "disabled" : "secondary"}
         />
 
         <Button
-          label="A little push🫸💨"
+          label={translate("aLittlePush")}
           theme="primary"
           onPress={handleShowStarter}
         />

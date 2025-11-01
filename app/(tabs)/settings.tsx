@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import Toggle from "../../components/Toggle";
 import { APP_VERSION } from "../../constants/AppInfo";
+import { useLanguage } from "../../contexts/LanguageContext";
 
 export default function SettingsScreen() {
   const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
-  const [isPolish, setIsPolish] = useState(false);
+  const { language, setLanguage, translate } = useLanguage();
 
   useEffect(() => {
     const loadState = async () => {
@@ -17,11 +18,6 @@ export default function SettingsScreen() {
         );
         if (savedNotificationsState !== null) {
           setIsNotificationsEnabled(JSON.parse(savedNotificationsState));
-        }
-
-        const savedLanguageState = await AsyncStorage.getItem("isPolish");
-        if (savedLanguageState !== null) {
-          setIsPolish(JSON.parse(savedLanguageState));
         }
       } catch (e) {
         console.error("Failed to load the state from storage", e);
@@ -43,15 +39,6 @@ export default function SettingsScreen() {
     }
   };
 
-  const handleLanguageToggle = async (value: boolean) => {
-    setIsPolish(value);
-    try {
-      await AsyncStorage.setItem("isPolish", JSON.stringify(value));
-    } catch (e) {
-      console.error("Failed to save the state to storage", e);
-    }
-  };
-
   return (
     <View style={styles.container}>
       {/* <Text style={styles.text}>Settings screen</Text> */}
@@ -63,15 +50,15 @@ export default function SettingsScreen() {
         offLabel="Off"
       />
       <Toggle
-        label="Language"
-        isOn={isPolish}
-        onToggle={handleLanguageToggle}
-        onLabel="Polish"
-        offLabel="English"
+        label={translate("language")}
+        isOn={language === "pl"}
+        onToggle={(value) => setLanguage(value ? "pl" : "en")}
+        onLabel={translate("polish")}
+        offLabel={translate("english")}
       />
       <View style={styles.settingsButton}>
         <Button
-          label="App version"
+          label={translate("appVersion")}
           theme="primary"
           onPress={() =>
             alert(

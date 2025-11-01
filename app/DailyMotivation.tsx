@@ -1,18 +1,26 @@
 import { useFonts } from "expo-font";
 import { LinearGradient } from "expo-linear-gradient";
-import { useState } from "react";
+import { useState, useLayoutEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Button from "../components/Button";
 import Quote from "../components/Quote";
 import { motivations } from "../constants/Content";
+import { useLanguage } from "../contexts/LanguageContext";
+import { useNavigation } from "@react-navigation/native";
 
 export default function DailyMotivation() {
   const [fontsLoaded] = useFonts({
     TimesNewRoman: require("../assets/fonts/TimesNewRoman.ttf"),
   });
+  const { translate } = useLanguage();
+  const navigation = useNavigation();
+
+  useLayoutEffect(() => {
+    navigation.setOptions({ headerTitle: translate('dailyMotivation') });
+  }, [navigation, translate]);
+
   const [currentMotivation, setCurrentMotivation] = useState({
-    quote:
-      "A dose of inspiration to fuel your day. Your future self will thank you.",
+    quote: translate("dailyMotivationIntro"),
     author: "",
   });
   const [history, setHistory] = useState<{ quote: string; author: string }[]>(
@@ -27,7 +35,8 @@ export default function DailyMotivation() {
   const handleShowMotivation = () => {
     setHistory([...history, currentMotivation]);
     const randomIndex = Math.floor(Math.random() * motivations.length);
-    setCurrentMotivation(motivations[randomIndex]);
+    const selectedMotivation = motivations[randomIndex];
+    setCurrentMotivation({ quote: translate(selectedMotivation.key), author: selectedMotivation.author });
   };
 
   const handlePreviousMotivation = () => {
@@ -52,13 +61,13 @@ export default function DailyMotivation() {
       ) : null}
       <View style={styles.buttonContainerSticky}>
         <Button
-          label="Previous"
+          label={translate("previous")}
           onPress={handlePreviousMotivation}
           theme={history.length === 0 ? "disabled" : "secondary"}
         />
 
         <Button
-          label="Why should I even? 🥇"
+          label={translate("whyShouldIEven")}
           theme="primary"
           onPress={handleShowMotivation}
         />

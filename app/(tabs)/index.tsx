@@ -1,35 +1,38 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { StyleSheet, Text, View } from "react-native";
 import Card from "../../components/Card";
+import { useLanguage } from "../../contexts/LanguageContext";
 
 export default function Index() {
+  const { translate } = useLanguage();
+
   return (
     <LinearGradient colors={["#101923", "#077480ff"]} style={styles.container}>
       <View style={styles.container}>
-        <Text style={styles.text}>Hello Harut!</Text>
+        <Text style={styles.text}>{translate('hello')} Harut!</Text>
         <View>
           <Card
-            label="Wisdom"
+            label={translate("wisdom")}
             screen="Wisdom"
             colors={["#cfcfcf0c", "#57575727"]}
           />
           <Card
-            label="Conversation Starters"
+            label={translate("conversationStarters")}
             screen="ConversationStarters"
             colors={["#cfcfcf0c", "#57575727"]}
           />
           <Card
-            label="Mantras"
+            label={translate("mantras")}
             screen="Mantras"
             colors={["#cfcfcf0c", "#57575727"]}
           />
           <Card
-            label="Daily Motivation"
+            label={translate("dailyMotivation")}
             screen="DailyMotivation"
             colors={["#cfcfcf0c", "#57575727"]}
           />
           <Card
-            label="Mindfulness Prompts"
+            label={translate("mindfulnessPrompts")}
             screen="Mindfulness"
             colors={["#cfcfcf0c", "#57575727"]}
           />

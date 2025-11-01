@@ -1,18 +1,26 @@
 import { useFonts } from "expo-font";
 import { LinearGradient } from "expo-linear-gradient";
-import { useState } from "react";
+import { useState, useLayoutEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Button from "../components/Button";
 import Quote from "../components/Quote";
 import { prompts } from "../constants/Content";
+import { useLanguage } from "../contexts/LanguageContext";
+import { useNavigation } from "@react-navigation/native";
 
 export default function Mindfulness() {
   const [fontsLoaded] = useFonts({
     TimesNewRoman: require("../assets/fonts/TimesNewRoman.ttf"),
   });
+  const { translate } = useLanguage();
+  const navigation = useNavigation();
+
+  useLayoutEffect(() => {
+    navigation.setOptions({ headerTitle: translate('mindfulnessPrompts') });
+  }, [navigation, translate]);
+
   const [currentPrompt, setCurrentPrompt] = useState({
-    quote:
-      "Find calm in the present moment. Use these prompts to anchor your awareness.",
+    quote: translate("mindfulnessIntro"),
     author: "",
   });
   const [history, setHistory] = useState<{ quote: string; author: string }[]>(
@@ -27,7 +35,8 @@ export default function Mindfulness() {
   const handleShowPrompt = () => {
     setHistory([...history, currentPrompt]);
     const randomIndex = Math.floor(Math.random() * prompts.length);
-    setCurrentPrompt({ quote: prompts[randomIndex], author: "" });
+    const selectedPromptKey = prompts[randomIndex];
+    setCurrentPrompt({ quote: translate(selectedPromptKey), author: "" });
   };
 
   const handlePreviousPrompt = () => {
@@ -52,13 +61,13 @@ export default function Mindfulness() {
       ) : null}
       <View style={styles.buttonContainerSticky}>
         <Button
-          label="Previous"
+          label={translate("previous")}
           onPress={handlePreviousPrompt}
           theme={history.length === 0 ? "disabled" : "secondary"}
         />
 
         <Button
-          label="Gimme Mindfulness"
+          label={translate("gimmeMindfulness")}
           theme="primary"
           onPress={handleShowPrompt}
         />

@@ -1,18 +1,26 @@
 import { useFonts } from "expo-font";
 import { LinearGradient } from "expo-linear-gradient";
-import { useState } from "react";
+import { useState, useLayoutEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Button from "../components/Button";
 import Quote from "../components/Quote";
 import { wisdom } from "../constants/Content";
+import { useLanguage } from "../contexts/LanguageContext";
+import { useNavigation } from "@react-navigation/native";
 
 export default function Wisdom() {
   const [fontsLoaded] = useFonts({
     TimesNewRoman: require("../assets/fonts/TimesNewRoman.ttf"),
   });
+  const { translate } = useLanguage();
+  const navigation = useNavigation();
+
+  useLayoutEffect(() => {
+    navigation.setOptions({ headerTitle: translate('wisdom') });
+  }, [navigation, translate]);
+
   const [currentWisdom, setCurrentWisdom] = useState({
-    quote:
-      "Tap into the well of timeless wisdom.\n Let these words guide your path.",
+    quote: translate("wisdomIntro"),
     author: "",
   });
   const [history, setHistory] = useState<{ quote: string; author: string }[]>(
@@ -27,7 +35,8 @@ export default function Wisdom() {
   const handleShowWisdom = () => {
     setHistory([...history, currentWisdom]);
     const randomIndex = Math.floor(Math.random() * wisdom.length);
-    setCurrentWisdom(wisdom[randomIndex]);
+    const selectedWisdom = wisdom[randomIndex];
+    setCurrentWisdom({ quote: translate(selectedWisdom.key), author: selectedWisdom.author });
   };
 
   const handlePreviousWisdom = () => {
@@ -53,13 +62,13 @@ export default function Wisdom() {
       <View style={styles.buttonContainerSticky}>
         <Button
           colors={["#cfcfcf28", "#57575744"]}
-          label="Previous"
+          label={translate("previous")}
           onPress={handlePreviousWisdom}
           theme={history.length === 0 ? "disabled" : "secondary"}
         />
 
         <Button
-          label="Show me some wisdom"
+          label={translate("showMeSomeWisdom")}
           theme="primary"
           onPress={handleShowWisdom}
         />
