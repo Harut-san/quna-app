@@ -1,35 +1,69 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
+import { Ionicons } from "@expo/vector-icons";
+import { Tabs } from "expo-router";
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
+export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
+        tabBarActiveTintColor: "#00bfa6",
+        headerStyle: { backgroundColor: "#101923" },
+        headerTintColor: "#00bfa6",
+        headerShadowVisible: false,
+        tabBarStyle: { backgroundColor: "#101923" },
+        headerTitleAlign: "center",
+      }}
+    >
+      <Tabs.Screen
+        name="about"
+        options={{
+          headerTitle: "QUNA",
+          tabBarLabel(props) {
+            return null; // Hide tab label
+          },
+          tabBarIcon: ({ focused, color }) => (
+            <Ionicons
+              name={focused ? "people-sharp" : "people-outline"}
+              size={24}
+              color={color}
+            />
+          ),
+        }}
+      />
+
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          headerTitle: "Home",
+          tabBarLabel(props) {
+            return null; // Hide tab label
+          },
+          tabBarIcon: ({ focused, color }) => (
+            <Ionicons
+              name={focused ? "home-sharp" : "home-outline"}
+              size={24}
+              color={color}
+            />
+          ),
         }}
       />
+
       <Tabs.Screen
-        name="explore"
+        name="settings"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          headerTitle: "Settings",
+          tabBarLabel(props) {
+            return null; // Hide tab label
+          },
+          tabBarIcon: ({ focused, color }) => (
+            <Ionicons
+              name={focused ? "settings-sharp" : "settings-outline"}
+              size={24}
+              color={color}
+            />
+          ),
         }}
       />
+      <Tabs.Screen name="+not-found" options={{}} />
     </Tabs>
   );
 }

@@ -1,24 +1,54 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { LogBox } from "react-native";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+LogBox.ignoreAllLogs(true); // Ignore all log notifications
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <>
+      <StatusBar style="light" /> {/* sets clock and battery style to light */}
       <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+        <Stack.Screen
+          name="(tabs)"
+          options={{
+            title: "",
+            headerShown: false, //property to prevent redndering header
+          }}
+        />
+        <Stack.Screen name="+not-found" options={{}} />
+
+        <Stack.Screen
+          name="Advices"
+          options={{ title: "Advices", ...commonOptions }}
+        />
+        <Stack.Screen
+          name="ConversationStarters"
+          options={{ title: "Conversation Starters", ...commonOptions }}
+        />
+        <Stack.Screen
+          name="DailyMotivation"
+          options={{ title: "Daily Motivation", ...commonOptions }}
+        />
+        <Stack.Screen
+          name="Mantras"
+          options={{ title: "Mantras", ...commonOptions }}
+        />
+        <Stack.Screen
+          name="Mindfulness"
+          options={{ title: "Mindfulness", ...commonOptions }}
+        />
       </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    </>
   );
 }
+
+const commonOptions = {
+  headerStyle: { backgroundColor: "#101923" },
+  headerTintColor: "#00bfa6",
+  headerTitleAlign: "center", //help
+  headerShadowVisible: false, //help
+
+  // HeaderTitle: { alignSelf: "center" },
+  // headerTitleStyle: { fontWeight: 900 },
+};
