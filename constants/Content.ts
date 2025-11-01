@@ -1,4 +1,4 @@
-export const advices = [
+export const wisdom = [
   { quote: "The best time to plant a tree was 20 years ago. The second best time is now.", author: "Chinese Proverb" },
   { quote: "Your limitation—it's only your imagination.", author: "Unknown" },
   { quote: "Push yourself, because no one else is going to do it for you.", author: "Unknown" },

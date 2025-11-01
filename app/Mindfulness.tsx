@@ -9,10 +9,13 @@ export default function Mindfulness() {
   const [fontsLoaded] = useFonts({
     TimesNewRoman: require("../assets/fonts/TimesNewRoman.ttf"),
   });
-  const [currentPrompt, setCurrentPrompt] = useState(
-    "you are in Mindfulness Prompts!"
+  const [currentPrompt, setCurrentPrompt] = useState({
+    quote: "Find calm in the present moment. Use these prompts to anchor your awareness.",
+    author: "",
+  });
+  const [history, setHistory] = useState<{ quote: string; author: string }[]>(
+    []
   );
-  const [history, setHistory] = useState<string[]>([]);
 
   if (!fontsLoaded) {
     // Optionally render a loading spinner
@@ -22,7 +25,7 @@ export default function Mindfulness() {
   const handleShowPrompt = () => {
     setHistory([...history, currentPrompt]);
     const randomIndex = Math.floor(Math.random() * prompts.length);
-    setCurrentPrompt(prompts[randomIndex]);
+    setCurrentPrompt({ quote: prompts[randomIndex], author: "" });
   };
 
   const handlePreviousPrompt = () => {
@@ -41,8 +44,11 @@ export default function Mindfulness() {
         colors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
         style={styles.textBackgroundGradient}
       >
-        <Text style={styles.text}>{currentPrompt}</Text>
+        <Text style={styles.text}>{currentPrompt.quote}</Text>
       </LinearGradient>
+      {currentPrompt.author ? (
+        <Text style={styles.author}>- {currentPrompt.author}</Text>
+      ) : null}
       <View style={styles.buttonContainerSticky}>
         <Button
           label="Previous"
@@ -81,6 +87,7 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 32,
     fontStyle: "italic",
+    marginHorizontal: 5,
   },
   buttonContainerSticky: {
     position: "absolute",

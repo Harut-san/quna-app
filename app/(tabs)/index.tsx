@@ -6,7 +6,7 @@ export default function Index() {
     <View style={styles.container}>
       <Text style={styles.text}>Hello Harut!</Text>
       <View>
-        <Card label="Advices" screen="Advices" />
+        <Card label="Wisdom" screen="Wisdom" />
         <Card label="Conversation Starters" screen="ConversationStarters" />
         <Card label="Mantras" screen="Mantras" />
         <Card label="Daily Motivation" screen="DailyMotivation" />

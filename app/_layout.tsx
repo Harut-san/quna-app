@@ -19,8 +19,8 @@ export default function RootLayout() {
         <Stack.Screen name="+not-found" options={{}} />
 
         <Stack.Screen
-          name="Advices"
-          options={{ title: "Advices", ...commonOptions }}
+          name="Wisdom"
+          options={{ title: "Wisdom", ...commonOptions }}
         />
         <Stack.Screen
           name="ConversationStarters"

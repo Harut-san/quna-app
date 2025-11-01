@@ -9,7 +9,10 @@ export default function DailyMotivation() {
   const [fontsLoaded] = useFonts({
     TimesNewRoman: require("../assets/fonts/TimesNewRoman.ttf"),
   });
-  const [currentMotivation, setCurrentMotivation] = useState(motivations[0]);
+  const [currentMotivation, setCurrentMotivation] = useState({
+    quote: "A dose of inspiration to fuel your day. Your future self will thank you.",
+    author: "",
+  });
   const [history, setHistory] = useState<{ quote: string; author: string }[]>(
     []
   );
@@ -43,7 +46,9 @@ export default function DailyMotivation() {
       >
         <Text style={styles.text}>{currentMotivation.quote}</Text>
       </LinearGradient>
-      <Text style={styles.author}>- {currentMotivation.author}</Text>
+      {currentMotivation.author ? (
+        <Text style={styles.author}>- {currentMotivation.author}</Text>
+      ) : null}
       <View style={styles.buttonContainerSticky}>
         <Button
           label="Previous"

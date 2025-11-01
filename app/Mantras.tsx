@@ -9,8 +9,13 @@ export default function Mantras() {
   const [fontsLoaded] = useFonts({
     TimesNewRoman: require("../assets/fonts/TimesNewRoman.ttf"),
   });
-  const [currentMantra, setCurrentMantra] = useState("you are in Mantras!");
-  const [history, setHistory] = useState<string[]>([]);
+  const [currentMantra, setCurrentMantra] = useState({
+    quote: "Harness the power of your own voice. Repeat these words to center your mind and spirit.",
+    author: "",
+  });
+  const [history, setHistory] = useState<{ quote: string; author: string }[]>(
+    []
+  );
 
   if (!fontsLoaded) {
     // Optionally render a loading spinner
@@ -20,7 +25,7 @@ export default function Mantras() {
   const handleShowMantra = () => {
     setHistory([...history, currentMantra]);
     const randomIndex = Math.floor(Math.random() * mantras.length);
-    setCurrentMantra(mantras[randomIndex]);
+    setCurrentMantra({ quote: mantras[randomIndex], author: "" });
   };
 
   const handlePreviousMantra = () => {
@@ -39,8 +44,11 @@ export default function Mantras() {
         colors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
         style={styles.textBackgroundGradient}
       >
-        <Text style={styles.text}>{currentMantra}</Text>
+        <Text style={styles.text}>{currentMantra.quote}</Text>
       </LinearGradient>
+      {currentMantra.author ? (
+        <Text style={styles.author}>- {currentMantra.author}</Text>
+      ) : null}
       <View style={styles.buttonContainerSticky}>
         <Button
           label="Previous"
@@ -79,6 +87,7 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 32,
     fontStyle: "italic",
+    marginHorizontal: 5,
   },
   buttonContainerSticky: {
     position: "absolute",

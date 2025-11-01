@@ -9,10 +9,13 @@ export default function ConversationStarters() {
   const [fontsLoaded] = useFonts({
     TimesNewRoman: require("../assets/fonts/TimesNewRoman.ttf"),
   });
-  const [currentStarter, setCurrentStarter] = useState(
-    "you are in Conversation Starters!"
+  const [currentStarter, setCurrentStarter] = useState({
+    quote: "Break the ice and spark meaningful connections. Let these questions guide your next conversation.",
+    author: "",
+  });
+  const [history, setHistory] = useState<{ quote: string; author: string }[]>(
+    []
   );
-  const [history, setHistory] = useState<string[]>([]);
 
   if (!fontsLoaded) {
     // Optionally render a loading spinner
@@ -22,7 +25,7 @@ export default function ConversationStarters() {
   const handleShowStarter = () => {
     setHistory([...history, currentStarter]);
     const randomIndex = Math.floor(Math.random() * starters.length);
-    setCurrentStarter(starters[randomIndex]);
+    setCurrentStarter({ quote: starters[randomIndex], author: "" });
   };
 
   const handlePreviousStarter = () => {
@@ -41,8 +44,11 @@ export default function ConversationStarters() {
         colors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
         style={styles.textBackgroundGradient}
       >
-        <Text style={styles.text}>{currentStarter}</Text>
+        <Text style={styles.text}>{currentStarter.quote}</Text>
       </LinearGradient>
+      {currentStarter.author ? (
+        <Text style={styles.author}>- {currentStarter.author}</Text>
+      ) : null}
       <View style={styles.buttonContainerSticky}>
         <Button
           label="Previous"

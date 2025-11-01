@@ -13,7 +13,7 @@ export default function Button({ label, theme, onPress }: Props) {
       <View
         style={[
           styles.buttonContainer,
-          { borderWidth: 4, borderColor: "#ffd33d", borderRadius: 18 },
+          { borderWidth: 2, borderColor: "#00bfa6", borderRadius: 34 },
         ]}
       >
         <Pressable
@@ -36,11 +36,11 @@ export default function Button({ label, theme, onPress }: Props) {
     return (
       <View style={[styles.buttonContainer]}>
         <Pressable
-          style={[styles.button, { backgroundColor: "#fff" }]}
+          style={[styles.button, { borderWidth: 2, borderColor: "#D3D3D3" }]}
           onPress={onPress}
         >
-          <FontAwesome size={18} color="#25292e" style={styles.buttonIcon} />
-          <Text style={[styles.buttonLabel, { color: "#25292e" }]}>
+          <FontAwesome size={18} color="#D3D3D3" style={styles.buttonIcon} />
+          <Text style={[styles.buttonLabel, { color: "#D3D3D3" }]}>
             {label}
           </Text>
         </Pressable>
@@ -49,23 +49,27 @@ export default function Button({ label, theme, onPress }: Props) {
   } else if (theme === "disabled") {
     return (
       <View style={[styles.buttonContainer]}>
-        <View style={[styles.button, { backgroundColor: "#8f8f8fff" }]}>
-          <FontAwesome size={18} color="#25292e" style={styles.buttonIcon} />
-          <Text style={[styles.buttonLabel, { color: "#25292e" }]}>
+        <Pressable
+          style={[styles.button, { borderWidth: 2, borderColor: "#808080" }]}
+          disabled={true}
+        >
+          <FontAwesome size={18} color="#808080" style={styles.buttonIcon} />
+          <Text style={[styles.buttonLabel, { color: "#808080" }]}>
             {label}
           </Text>
-        </View>
+        </Pressable>
       </View>
     );
   }
 
   return (
-    <View style={styles.buttonContainer}>
+    <View style={[styles.buttonContainer]}>
       <Pressable
-        style={styles.button}
+        style={[styles.button, { borderWidth: 2, borderColor: "#D3D3D3" }]}
         onPress={onPress}
       >
-        <Text style={styles.buttonLabel}>{label}</Text>
+        <FontAwesome size={18} color="#D3D3D3" style={styles.buttonIcon} />
+        <Text style={[styles.buttonLabel, { color: "#D3D3D3" }]}>{label}</Text>
       </Pressable>
     </View>
   );
@@ -78,10 +82,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     alignItems: "center",
     justifyContent: "center",
-    padding: 3,
+    padding: 4,
   },
   button: {
-    borderRadius: 10,
+    borderRadius: 30,
     width: "100%",
     height: "100%",
     alignItems: "center",
@@ -89,7 +93,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   buttonIcon: {
-    paddingRight: 8,
+    //narazie zero
+    //
   },
   buttonLabel: {
     color: "#fff",
