@@ -75,14 +75,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingBottom: 100, // Add padding to prevent content from being hidden by the sticky button
   },
-  text: {
-    fontFamily: "TimesNewRoman",
-    textAlign: "center",
-    color: "white",
-    fontSize: 32,
-    fontStyle: "italic",
-    marginHorizontal: 5,
-  },
   author: {
     fontFamily: "TimesNewRoman",
     color: "white",

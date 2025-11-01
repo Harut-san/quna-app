@@ -1,3 +1,4 @@
+import Quote from "@/components/Quote";
 import { useFonts } from "expo-font";
 import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
@@ -41,12 +42,12 @@ export default function Mantras() {
 
   return (
     <LinearGradient colors={["#101923", "#6f0066ff"]} style={styles.container}>
-      <LinearGradient
-        colors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
-        style={styles.textBackgroundGradient}
-      >
-        <Text style={styles.text}>{currentMantra.quote}</Text>
-      </LinearGradient>
+      <Quote
+        quote={currentMantra.quote}
+        textStyle={styles.text}
+        gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
+      />
+
       {currentMantra.author ? (
         <Text style={styles.author}>{currentMantra.author}</Text>
       ) : null}

@@ -1,3 +1,4 @@
+import Quote from "@/components/Quote";
 import { useFonts } from "expo-font";
 import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
@@ -41,12 +42,11 @@ export default function ConversationStarters() {
 
   return (
     <LinearGradient colors={["#101923", "#00565dff"]} style={styles.container}>
-      <LinearGradient
-        colors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
-        style={styles.textBackgroundGradient}
-      >
-        <Text style={styles.text}>{currentStarter.quote}</Text>
-      </LinearGradient>
+      <Quote
+        quote={currentStarter.quote}
+        textStyle={styles.text}
+        gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
+      />
       {currentStarter.author ? (
         <Text style={styles.author}>{currentStarter.author}</Text>
       ) : null}

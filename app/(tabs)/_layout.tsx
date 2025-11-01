@@ -9,7 +9,7 @@ export default function TabsLayout() {
         headerStyle: { backgroundColor: "#101923" },
         headerTintColor: "#fff",
         headerShadowVisible: false,
-        tabBarStyle: { backgroundColor: "#101923" },
+        tabBarStyle: { backgroundColor: "#101923", paddingTop: 10 },
         headerTitleAlign: "center",
       }}
     >
@@ -22,8 +22,8 @@ export default function TabsLayout() {
           },
           tabBarIcon: ({ focused, color }) => (
             <Ionicons
-              name={focused ? "people-sharp" : "people-outline"}
-              size={24}
+              name={focused ? "heart-circle-sharp" : "heart-circle-outline"}
+              size={28}
               color={color}
             />
           ),
@@ -39,8 +39,8 @@ export default function TabsLayout() {
           },
           tabBarIcon: ({ focused, color }) => (
             <Ionicons
-              name={focused ? "home-sharp" : "home-outline"}
-              size={24}
+              name={focused ? "filter-circle" : "filter-circle-outline"}
+              size={28}
               color={color}
             />
           ),
@@ -56,8 +56,8 @@ export default function TabsLayout() {
           },
           tabBarIcon: ({ focused, color }) => (
             <Ionicons
-              name={focused ? "settings-sharp" : "settings-outline"}
-              size={24}
+              name={focused ? "reorder-four-sharp" : "reorder-four-outline"}
+              size={28}
               color={color}
             />
           ),

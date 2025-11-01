@@ -9,6 +9,15 @@ interface QuoteProps {
 }
 
 const Quote: React.FC<QuoteProps> = ({ quote, textStyle, gradientColors }) => {
+  const defaultTextStyle = {
+    fontFamily: "TimesNewRoman",
+    textAlign: "center",
+    color: "white",
+    fontSize: 30,
+    fontStyle: "italic",
+    marginHorizontal: 5,
+  };
+
   return (
     <LinearGradient
       colors={
@@ -16,7 +25,7 @@ const Quote: React.FC<QuoteProps> = ({ quote, textStyle, gradientColors }) => {
       }
       style={styles.textBackgroundGradient}
     >
-      <Text style={textStyle}>{quote}</Text>
+      <Text style={[defaultTextStyle, textStyle]}>{quote}</Text>
     </LinearGradient>
   );
 };
