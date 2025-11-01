@@ -10,7 +10,8 @@ export default function Mindfulness() {
     TimesNewRoman: require("../assets/fonts/TimesNewRoman.ttf"),
   });
   const [currentPrompt, setCurrentPrompt] = useState({
-    quote: "Find calm in the present moment. Use these prompts to anchor your awareness.",
+    quote:
+      "Find calm in the present moment. Use these prompts to anchor your awareness.",
     author: "",
   });
   const [history, setHistory] = useState<{ quote: string; author: string }[]>(
@@ -74,12 +75,14 @@ const styles = StyleSheet.create({
     paddingBottom: 100, // Add padding to prevent content from being hidden by the sticky button
   },
   textBackgroundGradient: {
-    borderRadius: 10,
+    borderRadius: 30,
     padding: 20,
     marginHorizontal: 20,
     marginBottom: 20,
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: 2,
+    borderColor: "#c5c5c533",
   },
   text: {
     fontFamily: "TimesNewRoman",
@@ -96,10 +99,5 @@ const styles = StyleSheet.create({
     right: 0,
     paddingBottom: 20,
     alignItems: "center",
-  },
-  link: {
-    fontSize: 24,
-    textDecorationLine: "underline",
-    color: "#fff",
   },
 });

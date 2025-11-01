@@ -6,11 +6,27 @@ export default function Index() {
     <View style={styles.container}>
       <Text style={styles.text}>Hello Harut!</Text>
       <View>
-        <Card label="Wisdom" screen="Wisdom" />
-        <Card label="Conversation Starters" screen="ConversationStarters" />
-        <Card label="Mantras" screen="Mantras" />
-        <Card label="Daily Motivation" screen="DailyMotivation" />
-        <Card label="Mindfulness Prompts" screen="Mindfulness" />
+        <Card label="Wisdom" screen="Wisdom" colors={["#101923", "#3a0000"]} />
+        <Card
+          label="Conversation Starters"
+          screen="ConversationStarters"
+          colors={["#101923", "#00565dff"]}
+        />
+        <Card
+          label="Mantras"
+          screen="Mantras"
+          colors={["#101923", "#6f0066ff"]}
+        />
+        <Card
+          label="Daily Motivation"
+          screen="DailyMotivation"
+          colors={["#101923", "#003a05ff"]}
+        />
+        <Card
+          label="Mindfulness Prompts"
+          screen="Mindfulness"
+          colors={["#101923", "#0048acff"]}
+        />
       </View>
     </View>
   );
@@ -27,10 +43,5 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 24,
     marginBottom: 24,
-  },
-  link: {
-    fontSize: 24,
-    textDecorationLine: "underline",
-    color: "#fff",
   },
 });
