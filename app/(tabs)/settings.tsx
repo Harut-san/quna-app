@@ -1,7 +1,9 @@
+import Button from "@/components/Button";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import Toggle from "../../components/Toggle";
+import { APP_VERSION } from "../../constants/AppInfo";
 
 export default function SettingsScreen() {
   const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
@@ -67,6 +69,17 @@ export default function SettingsScreen() {
         onLabel="Polish"
         offLabel="English"
       />
+      <View style={styles.settingsButton}>
+        <Button
+          label="App version"
+          theme="primary"
+          onPress={() =>
+            alert(
+              `Quna v${APP_VERSION}\n© 2025 Quna Inc.\n author: Harut Vardikyan`
+            )
+          }
+        />
+      </View>
     </View>
   );
 }
@@ -83,9 +96,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: "center",
   },
-  link: {
-    fontSize: 24,
-    textDecorationLine: "underline",
-    color: "#fff",
+  settingsButton: {
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

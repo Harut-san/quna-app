@@ -16,10 +16,6 @@ export default function AboutScreen() {
           theme="primary"
           onPress={() => alert("Quna v1.0.0\n© 2024 Quna Inc.")}
         />
-        <Button
-          label="Log in"
-          // onPress={() => alert("Quna v1.0.0\n© 2024 Quna Inc.")}
-        />
         <Button label="disabled" theme="disabled" />
         <Button label="secondary" theme="secondary" />
       </View>
