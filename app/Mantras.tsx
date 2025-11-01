@@ -54,7 +54,7 @@ export default function Mantras() {
         <Button
           label="Previous"
           onPress={handlePreviousMantra}
-          theme={history.length === 0 ? "disabled" : undefined}
+          theme={history.length === 0 ? "disabled" : "secondary"}
         />
 
         <Button

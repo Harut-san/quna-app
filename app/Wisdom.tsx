@@ -52,9 +52,10 @@ export default function Wisdom() {
       ) : null}
       <View style={styles.buttonContainerSticky}>
         <Button
+          colors={["#cfcfcf28", "#57575744"]}
           label="Previous"
           onPress={handlePreviousWisdom}
-          theme={history.length === 0 ? "disabled" : undefined}
+          theme={history.length === 0 ? "disabled" : "secondary"}
         />
 
         <Button

@@ -54,7 +54,7 @@ export default function ConversationStarters() {
         <Button
           label="Previous"
           onPress={handlePreviousStarter}
-          theme={history.length === 0 ? "disabled" : undefined}
+          theme={history.length === 0 ? "disabled" : "secondary"}
         />
 
         <Button

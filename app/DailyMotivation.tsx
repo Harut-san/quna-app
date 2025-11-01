@@ -54,7 +54,7 @@ export default function DailyMotivation() {
         <Button
           label="Previous"
           onPress={handlePreviousMotivation}
-          theme={history.length === 0 ? "disabled" : undefined}
+          theme={history.length === 0 ? "disabled" : "secondary"}
         />
 
         <Button

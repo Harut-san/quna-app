@@ -14,7 +14,7 @@ export default function AboutScreen() {
         <Button
           label="Begin Your Journey"
           theme="primary"
-          // onPress={() => alert("Quna v1.0.0\n© 2024 Quna Inc.")}
+          onPress={() => alert("Quna v1.0.0\n© 2024 Quna Inc.")}
         />
         <Button
           label="Log in"
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   imageContainer: {
-    flex: 1,
+    flex: 1 / 3,
     // marginTop: 50,
   },
 

@@ -54,7 +54,7 @@ export default function Mindfulness() {
         <Button
           label="Previous"
           onPress={handlePreviousPrompt}
-          theme={history.length === 0 ? "disabled" : undefined}
+          theme={history.length === 0 ? "disabled" : "secondary"}
         />
 
         <Button
