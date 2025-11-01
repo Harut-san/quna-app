@@ -29,7 +29,7 @@ const getButtonStyles = (theme?: string, isPressed?: boolean) => {
           styles.button,
           {
             borderWidth: 2,
-            borderColor: "#c5c5c533",
+            borderColor: "#c5c5c54d",
             transform: [{ scale: isPressed ? 0.98 : 1 }],
           },
         ],
@@ -47,7 +47,7 @@ const getButtonStyles = (theme?: string, isPressed?: boolean) => {
           styles.button,
           {
             borderWidth: 2,
-            borderColor: "#c5c5c533",
+            borderColor: "#c5c5c54d",
             transform: [{ scale: isPressed ? 0.98 : 1 }],
           },
         ],
@@ -72,7 +72,7 @@ const getButtonStyles = (theme?: string, isPressed?: boolean) => {
         ...baseStyles,
         container: [
           styles.buttonContainer,
-          { borderWidth: 2, borderColor: "#c5c5c533", borderRadius: 34 },
+          { borderWidth: 2, borderColor: "#c5c5c54d", borderRadius: 34 },
         ],
         label: [styles.buttonLabel, { color: "#fff" }],
         icon: [styles.buttonIcon, { color: "#fff" }],

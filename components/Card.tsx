@@ -13,16 +13,26 @@ export default function Card({ label, screen, colors }: Props) {
   const navigation = useNavigation();
   return (
     <View style={styles.cardContainer}>
-      <LinearGradient colors={colors} style={styles.card}>
-        <Pressable
-          style={styles.pressable}
-          onPress={() => {
-            navigation.navigate(screen as never);
-          }}
-        >
-          <Text style={styles.cardLabel}>{label}</Text>
-        </Pressable>
-      </LinearGradient>
+      <Pressable
+        style={({ pressed }) => [
+          styles.pressable,
+          pressed && { opacity: 0.75, transform: [{ scale: 0.98 }] },
+        ]} // Apply visual feedback here
+        onPress={() => {
+          navigation.navigate(screen as never);
+        }}
+      >
+        {({ pressed }) => (
+          <LinearGradient
+            colors={
+              pressed ? ["#cfcfcf10", "#57575744"] : ["#cfcfcf1d", "#57575744"]
+            }
+            style={styles.card}
+          >
+            <Text style={styles.cardLabel}>{label}</Text>
+          </LinearGradient>
+        )}
+      </Pressable>
     </View>
   );
 }
