@@ -48,7 +48,7 @@ export default function ConversationStarters() {
         <Text style={styles.text}>{currentStarter.quote}</Text>
       </LinearGradient>
       {currentStarter.author ? (
-        <Text style={styles.author}>- {currentStarter.author}</Text>
+        <Text style={styles.author}>{currentStarter.author}</Text>
       ) : null}
       <View style={styles.buttonContainerSticky}>
         <Button

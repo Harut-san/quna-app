@@ -3,6 +3,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Button from "../components/Button";
+import Quote from "../components/Quote";
 import { prompts } from "../constants/Content";
 
 export default function Mindfulness() {
@@ -41,14 +42,13 @@ export default function Mindfulness() {
 
   return (
     <LinearGradient colors={["#101923", "#0048acff"]} style={styles.container}>
-      <LinearGradient
-        colors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
-        style={styles.textBackgroundGradient}
-      >
-        <Text style={styles.text}>{currentPrompt.quote}</Text>
-      </LinearGradient>
+      <Quote
+        quote={currentPrompt.quote}
+        textStyle={styles.text}
+        gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
+      />
       {currentPrompt.author ? (
-        <Text style={styles.author}>- {currentPrompt.author}</Text>
+        <Text style={styles.author}>{currentPrompt.author}</Text>
       ) : null}
       <View style={styles.buttonContainerSticky}>
         <Button
@@ -58,7 +58,7 @@ export default function Mindfulness() {
         />
 
         <Button
-          label="Gimme mindfulness 😉"
+          label="Gimme Mindfulness"
           theme="primary"
           onPress={handleShowPrompt}
         />
@@ -74,16 +74,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingBottom: 100, // Add padding to prevent content from being hidden by the sticky button
   },
-  textBackgroundGradient: {
-    borderRadius: 30,
-    padding: 20,
-    marginHorizontal: 20,
-    marginBottom: 20,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 2,
-    borderColor: "#c5c5c533",
-  },
   text: {
     fontFamily: "TimesNewRoman",
     textAlign: "center",
@@ -92,6 +82,13 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     marginHorizontal: 5,
   },
+  author: {
+    fontFamily: "TimesNewRoman",
+    color: "white",
+    fontSize: 20,
+    fontStyle: "italic",
+    marginBottom: 20,
+  },
   buttonContainerSticky: {
     position: "absolute",
     bottom: 20,
@@ -99,5 +96,10 @@ const styles = StyleSheet.create({
     right: 0,
     paddingBottom: 20,
     alignItems: "center",
+  },
+  link: {
+    fontSize: 24,
+    textDecorationLine: "underline",
+    color: "#fff",
   },
 });

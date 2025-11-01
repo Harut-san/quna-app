@@ -48,7 +48,7 @@ export default function Mantras() {
         <Text style={styles.text}>{currentMantra.quote}</Text>
       </LinearGradient>
       {currentMantra.author ? (
-        <Text style={styles.author}>- {currentMantra.author}</Text>
+        <Text style={styles.author}>{currentMantra.author}</Text>
       ) : null}
       <View style={styles.buttonContainerSticky}>
         <Button

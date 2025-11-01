@@ -3,6 +3,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Button from "../components/Button";
+import Quote from "../components/Quote";
 import { motivations } from "../constants/Content";
 
 export default function DailyMotivation() {
@@ -41,14 +42,13 @@ export default function DailyMotivation() {
 
   return (
     <LinearGradient colors={["#101923", "#003a05ff"]} style={styles.container}>
-      <LinearGradient
-        colors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
-        style={styles.textBackgroundGradient}
-      >
-        <Text style={styles.text}>{currentMotivation.quote}</Text>
-      </LinearGradient>
+      <Quote
+        quote={currentMotivation.quote}
+        textStyle={styles.text}
+        gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
+      />
       {currentMotivation.author ? (
-        <Text style={styles.author}>- {currentMotivation.author}</Text>
+        <Text style={styles.author}>{currentMotivation.author}</Text>
       ) : null}
       <View style={styles.buttonContainerSticky}>
         <Button
@@ -73,16 +73,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingBottom: 100, // Add padding to prevent content from being hidden by the sticky button
-  },
-  textBackgroundGradient: {
-    borderRadius: 30,
-    padding: 20,
-    marginHorizontal: 20,
-    marginBottom: 20,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 2,
-    borderColor: "#c5c5c533",
   },
   text: {
     fontFamily: "TimesNewRoman",
