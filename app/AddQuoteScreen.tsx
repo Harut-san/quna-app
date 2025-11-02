@@ -1,53 +1,53 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Alert } from 'react-native';
-import Button from '../components/Button'; // Assuming your custom Button component
-import { supabase } from '../constants/supabase';
-import { Picker } from '@react-native-picker/picker';
+import { Picker } from "@react-native-picker/picker";
+import React, { useState } from "react";
+import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
+import Button from "../components/Button"; // Assuming your custom Button component
+import { supabase } from "../constants/supabase";
 
 const quoteCategories = [
-  'Wisdom',
-  'Conversation Starters',
-  'Mantras',
-  'Daily Motivation',
-  'Mindfulness Prompts',
+  "wisdom",
+  "Conversation Starters",
+  "Mantras",
+  "Daily Motivation",
+  "Mindfulness Prompts",
 ];
 
 export default function AddQuoteScreen() {
-  const [content, setContent] = useState('');
-  const [author, setAuthor] = useState('');
+  const [content, setContent] = useState("");
+  const [author, setAuthor] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(quoteCategories[0]);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmitQuote() {
     if (!content.trim()) {
-      Alert.alert('Error', 'Quote content cannot be empty.');
+      Alert.alert("Error", "Quote content cannot be empty.");
       return;
     }
 
     setLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
     if (!user) {
-      Alert.alert('Error', 'You must be logged in to add a quote.');
+      Alert.alert("Error", "You must be logged in to add a quote.");
       setLoading(false);
       return;
     }
 
-    const { error } = await supabase
-      .from('user_content')
-      .insert({
-        user_id: user.id,
-        content: content.trim(),
-        author: author.trim() || null,
-        category: selectedCategory,
-      });
+    const { error } = await supabase.from("user_content").insert({
+      user_id: user.id,
+      content: content.trim(),
+      author: author.trim() || null,
+      category: selectedCategory,
+    });
 
     if (error) {
-      Alert.alert('Error adding quote', error.message);
+      Alert.alert("Error adding quote", error.message);
     } else {
-      Alert.alert('Success', 'Quote added successfully!');
-      setContent('');
-      setAuthor('');
+      Alert.alert("Success", "Quote added successfully!");
+      setContent("");
+      setAuthor("");
       setSelectedCategory(quoteCategories[0]);
     }
     setLoading(false);
@@ -85,8 +85,8 @@ export default function AddQuoteScreen() {
       </View>
       <View style={styles.buttonContainer}>
         <Button
-          label={loading ? 'Adding...' : 'Add Quote'}
-          theme={loading ? 'disabled' : 'primary'}
+          label={loading ? "Adding..." : "Add Quote"}
+          theme={loading ? "disabled" : "primary"}
           onPress={handleSubmitQuote}
           disabled={loading}
         />
@@ -99,43 +99,43 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#101923',
-    alignItems: 'center',
+    backgroundColor: "#101923",
+    alignItems: "center",
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
+    fontWeight: "bold",
+    color: "white",
     marginBottom: 30,
   },
   input: {
-    width: '100%',
-    backgroundColor: '#25292e',
-    color: 'white',
+    width: "100%",
+    backgroundColor: "#25292e",
+    color: "white",
     borderRadius: 8,
     padding: 15,
     marginBottom: 20,
     minHeight: 100,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
   },
   buttonContainer: {
     marginTop: 20,
-    width: '100%',
-    alignItems: 'center',
+    width: "100%",
+    alignItems: "center",
   },
   pickerContainer: {
-    width: '100%',
-    backgroundColor: '#25292e',
+    width: "100%",
+    backgroundColor: "#25292e",
     borderRadius: 8,
     marginBottom: 20,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   picker: {
-    width: '100%',
-    color: 'white',
+    width: "100%",
+    color: "white",
   },
   pickerItem: {
-    color: 'white',
-    backgroundColor: '#25292e',
+    color: "white",
+    backgroundColor: "#25292e",
   },
 });
