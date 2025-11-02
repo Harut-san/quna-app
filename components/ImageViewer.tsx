@@ -11,8 +11,9 @@ export default function ImageViewerk({ imgSource }: Props) {
 
 const styles = StyleSheet.create({
   image: {
-    width: 320,
-    height: 440,
+    width: 150,
+    height: 150,
     borderRadius: 18,
+    resizeMode: 'contain',
   },
 });

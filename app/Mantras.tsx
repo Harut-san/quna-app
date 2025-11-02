@@ -1,60 +1,106 @@
 import Quote from "@/components/Quote";
 import { useFonts } from "expo-font";
 import { LinearGradient } from "expo-linear-gradient";
-import { useState, useLayoutEffect } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { useState, useLayoutEffect, useEffect } from "react";
+import { StyleSheet, Text, View, ActivityIndicator } from "react-native";
 import Button from "../components/Button";
-import { mantras } from "../constants/Content";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useNavigation } from "@react-navigation/native";
+import useMantra from "../hooks/useMantra";
+import useFavorites from "../hooks/useFavorites";
+
+interface MantraItem {
+  id: string;
+  author: string;
+  content: string;
+}
 
 export default function Mantras() {
   const [fontsLoaded] = useFonts({
     TimesNewRoman: require("../assets/fonts/TimesNewRoman.ttf"),
   });
-  const { translate } = useLanguage();
+  const { translate, language } = useLanguage();
   const navigation = useNavigation();
+  const { mantraData, loading, error } = useMantra();
+  const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites();
+
+  const [currentMantra, setCurrentMantra] = useState<MantraItem>({
+    id: "",
+    author: "",
+        content: translate("mantraIntro"),
+  });
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useLayoutEffect(() => {
     navigation.setOptions({ headerTitle: translate('mantras') });
   }, [navigation, translate]);
 
-  const [currentMantra, setCurrentMantra] = useState({
-    quote: translate("mantraIntro"),
-    author: "",
-  });
-  const [history, setHistory] = useState<{ quote: string; author: string }[]>(
-    []
-  );
+  useEffect(() => {
+    if (!loading && !error && mantraData.length > 0) {
+      setCurrentIndex(0);
+      setCurrentMantra(mantraData[0]);
+    }
+  }, [mantraData, loading, error]);
 
-  if (!fontsLoaded) {
-    // Optionally render a loading spinner
-    return null;
+  if (!fontsLoaded || loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#fff" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.errorText}>Error: {error}</Text>
+      </View>
+    );
   }
 
   const handleShowMantra = () => {
-    setHistory([...history, currentMantra]);
-    const randomIndex = Math.floor(Math.random() * mantras.length);
-    const selectedMantraKey = mantras[randomIndex];
-    setCurrentMantra({ quote: translate(selectedMantraKey), author: "" });
+    if (mantraData.length === 0) {
+      return;
+    }
+
+    const nextIndex = (currentIndex + 1) % mantraData.length;
+    setCurrentIndex(nextIndex);
+    setCurrentMantra(mantraData[nextIndex]);
   };
 
   const handlePreviousMantra = () => {
-    if (history.length > 0) {
-      const lastMantra = history.pop();
-      if (lastMantra) {
-        setCurrentMantra(lastMantra);
+    if (mantraData.length === 0) return;
+
+    const prevIndex = (currentIndex - 1 + mantraData.length) % mantraData.length;
+    setCurrentIndex(prevIndex);
+    setCurrentMantra(mantraData[prevIndex]);
+  };
+
+  const handleToggleFavorite = async () => {
+    if (!currentMantra.id) return;
+
+    const isCurrentlyFavorite = isFavorite(currentMantra.id);
+    if (isCurrentlyFavorite) {
+      const favoriteItem = favorites.find(fav => fav.id === currentMantra.id);
+      if (favoriteItem) {
+        await removeFavorite(favoriteItem.favoriteId);
       }
-      setHistory([...history]);
+    } else {
+      const quoteType = currentMantra.id.length === 36 ? 'user' : 'master';
+      await addFavorite(currentMantra, quoteType);
     }
   };
+
+  const displayQuote = currentMantra.content;
 
   return (
     <LinearGradient colors={["#101923", "#6f0066ff"]} style={styles.container}>
       <Quote
-        quote={currentMantra.quote}
+        quote={displayQuote}
         textStyle={styles.text}
         gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
+        isFavorite={isFavorite(currentMantra.id)}
+        onToggleFavorite={handleToggleFavorite}
       />
 
       {currentMantra.author ? (
@@ -64,7 +110,7 @@ export default function Mantras() {
         <Button
           label={translate("previous")}
           onPress={handlePreviousMantra}
-          theme={history.length === 0 ? "disabled" : "secondary"}
+          theme={mantraData.length === 0 ? "disabled" : "secondary"}
         />
 
         <Button
@@ -84,23 +130,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingBottom: 100, // Add padding to prevent content from being hidden by the sticky button
   },
-  textBackgroundGradient: {
-    borderRadius: 30,
-    padding: 20,
-    marginHorizontal: 20,
-    marginBottom: 20,
-    alignItems: "center",
+  loadingContainer: {
+    flex: 1,
     justifyContent: "center",
-    borderWidth: 2,
-    borderColor: "#c5c5c533",
+    alignItems: "center",
+    backgroundColor: "#101923",
   },
-  text: {
+  errorText: {
+    color: "red",
+    fontSize: 18,
+  },
+  author: {
     fontFamily: "TimesNewRoman",
-    textAlign: "center",
     color: "white",
-    fontSize: 32,
+    fontSize: 20,
     fontStyle: "italic",
-    marginHorizontal: 5,
+    marginBottom: 20,
   },
   buttonContainerSticky: {
     position: "absolute",

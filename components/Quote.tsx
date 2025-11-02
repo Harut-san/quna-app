@@ -1,14 +1,23 @@
+import { AntDesign } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
-import { StyleSheet, Text } from "react-native";
+import { StyleSheet, Text, TouchableOpacity } from "react-native";
 
 interface QuoteProps {
   quote: string;
   textStyle: any;
   gradientColors?: string[];
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
 }
 
-const Quote: React.FC<QuoteProps> = ({ quote, textStyle, gradientColors }) => {
+const Quote: React.FC<QuoteProps> = ({
+  quote,
+  textStyle,
+  gradientColors,
+  isFavorite,
+  onToggleFavorite,
+}) => {
   const defaultTextStyle = {
     fontFamily: "TimesNewRoman",
     textAlign: "center",
@@ -26,6 +35,18 @@ const Quote: React.FC<QuoteProps> = ({ quote, textStyle, gradientColors }) => {
       style={styles.textBackgroundGradient}
     >
       <Text style={[defaultTextStyle, textStyle]}>{quote}</Text>
+      {onToggleFavorite && (
+        <TouchableOpacity
+          onPress={onToggleFavorite}
+          style={styles.favoriteButton}
+        >
+          <AntDesign
+            name={isFavorite ? "heart" : "hearto"}
+            size={24}
+            color={isFavorite ? "#FFD700" : "white"}
+          />
+        </TouchableOpacity>
+      )}
     </LinearGradient>
   );
 };
@@ -40,6 +61,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderWidth: 2,
     borderColor: "#c5c5c533",
+  },
+  favoriteButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    padding: 5,
   },
 });
 

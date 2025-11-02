@@ -1,60 +1,106 @@
 import Quote from "@/components/Quote";
 import { useFonts } from "expo-font";
 import { LinearGradient } from "expo-linear-gradient";
-import { useState, useLayoutEffect } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { useState, useLayoutEffect, useEffect } from "react";
+import { StyleSheet, Text, View, ActivityIndicator } from "react-native";
 import Button from "../components/Button";
-import { starters } from "../constants/Content";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useNavigation } from "@react-navigation/native";
+import useConversationStarters from "../hooks/useConversationStarters";
+import useFavorites from "../hooks/useFavorites";
+
+interface ConversationStarterItem {
+  id: string;
+  author: string;
+  content: string;
+}
 
 export default function ConversationStarters() {
   const [fontsLoaded] = useFonts({
     TimesNewRoman: require("../assets/fonts/TimesNewRoman.ttf"),
   });
-  const { translate } = useLanguage();
+  const { translate, language } = useLanguage();
   const navigation = useNavigation();
+  const { conversationStartersData, loading, error } = useConversationStarters();
+  const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites();
+
+  const [currentStarter, setCurrentStarter] = useState<ConversationStarterItem>({
+    id: "",
+    author: "",
+    content: translate("conversationStarterIntro"),
+  });
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useLayoutEffect(() => {
     navigation.setOptions({ headerTitle: translate('conversationStarters') });
   }, [navigation, translate]);
 
-  const [currentStarter, setCurrentStarter] = useState({
-    quote: translate("conversationStarterIntro"),
-    author: "",
-  });
-  const [history, setHistory] = useState<{ quote: string; author: string }[]>(
-    []
-  );
+  useEffect(() => {
+    if (!loading && !error && conversationStartersData.length > 0) {
+      setCurrentIndex(0);
+      setCurrentStarter(conversationStartersData[0]);
+    }
+  }, [conversationStartersData, loading, error]);
 
-  if (!fontsLoaded) {
-    // Optionally render a loading spinner
-    return null;
+  if (!fontsLoaded || loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#fff" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.errorText}>Error: {error}</Text>
+      </View>
+    );
   }
 
   const handleShowStarter = () => {
-    setHistory([...history, currentStarter]);
-    const randomIndex = Math.floor(Math.random() * starters.length);
-    const selectedStarterKey = starters[randomIndex];
-    setCurrentStarter({ quote: translate(selectedStarterKey), author: "" });
+    if (conversationStartersData.length === 0) {
+      return;
+    }
+
+    const nextIndex = (currentIndex + 1) % conversationStartersData.length;
+    setCurrentIndex(nextIndex);
+    setCurrentStarter(conversationStartersData[nextIndex]);
   };
 
   const handlePreviousStarter = () => {
-    if (history.length > 0) {
-      const lastStarter = history.pop();
-      if (lastStarter) {
-        setCurrentStarter(lastStarter);
+    if (conversationStartersData.length === 0) return;
+
+    const prevIndex = (currentIndex - 1 + conversationStartersData.length) % conversationStartersData.length;
+    setCurrentIndex(prevIndex);
+    setCurrentStarter(conversationStartersData[prevIndex]);
+  };
+
+  const handleToggleFavorite = async () => {
+    if (!currentStarter.id) return;
+
+    const isCurrentlyFavorite = isFavorite(currentStarter.id);
+    if (isCurrentlyFavorite) {
+      const favoriteItem = favorites.find(fav => fav.id === currentStarter.id);
+      if (favoriteItem) {
+        await removeFavorite(favoriteItem.favoriteId);
       }
-      setHistory([...history]);
+    } else {
+      const quoteType = currentStarter.id.length === 36 ? 'user' : 'master';
+      await addFavorite(currentStarter, quoteType);
     }
   };
+
+  const displayQuote = currentStarter.content;
 
   return (
     <LinearGradient colors={["#101923", "#00565dff"]} style={styles.container}>
       <Quote
-        quote={currentStarter.quote}
+        quote={displayQuote}
         textStyle={styles.text}
         gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
+        isFavorite={isFavorite(currentStarter.id)}
+        onToggleFavorite={handleToggleFavorite}
       />
       {currentStarter.author ? (
         <Text style={styles.author}>{currentStarter.author}</Text>
@@ -63,7 +109,7 @@ export default function ConversationStarters() {
         <Button
           label={translate("previous")}
           onPress={handlePreviousStarter}
-          theme={history.length === 0 ? "disabled" : "secondary"}
+          theme={conversationStartersData.length === 0 ? "disabled" : "secondary"}
         />
 
         <Button

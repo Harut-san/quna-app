@@ -1,60 +1,110 @@
 import { useFonts } from "expo-font";
 import { LinearGradient } from "expo-linear-gradient";
-import { useState, useLayoutEffect } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { useState, useLayoutEffect, useEffect } from "react";
+import { StyleSheet, Text, View, ActivityIndicator } from "react-native";
 import Button from "../components/Button";
 import Quote from "../components/Quote";
-import { wisdom } from "../constants/Content";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useNavigation } from "@react-navigation/native";
+import useWisdom from "../hooks/useWisdom";
+import useFavorites from "../hooks/useFavorites";
+
+
+interface WisdomItem {
+  id: string;
+  author: string;
+  content: string;
+}
 
 export default function Wisdom() {
   const [fontsLoaded] = useFonts({
     TimesNewRoman: require("../assets/fonts/TimesNewRoman.ttf"),
   });
-  const { translate } = useLanguage();
+  const { translate, language } = useLanguage();
   const navigation = useNavigation();
+  const { wisdomData, loading, error } = useWisdom();
+  const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites();
+
+  const [currentWisdom, setCurrentWisdom] = useState<WisdomItem>({
+    id: "",
+    author: "",
+    content: translate("wisdomIntro"),
+  });
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useLayoutEffect(() => {
     navigation.setOptions({ headerTitle: translate('wisdom') });
   }, [navigation, translate]);
 
-  const [currentWisdom, setCurrentWisdom] = useState({
-    quote: translate("wisdomIntro"),
-    author: "",
-  });
-  const [history, setHistory] = useState<{ quote: string; author: string }[]>(
-    []
-  );
+  useEffect(() => {
+    if (!loading && !error && wisdomData.length > 0) {
+      setCurrentIndex(0);
+      setCurrentWisdom(wisdomData[0]);
+    }
+  }, [wisdomData, loading, error]);
 
-  if (!fontsLoaded) {
-    // Optionally render a loading spinner
-    return null;
+  if (!fontsLoaded || loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#fff" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.errorText}>Error: {error}</Text>
+      </View>
+    );
   }
 
   const handleShowWisdom = () => {
-    setHistory([...history, currentWisdom]);
-    const randomIndex = Math.floor(Math.random() * wisdom.length);
-    const selectedWisdom = wisdom[randomIndex];
-    setCurrentWisdom({ quote: translate(selectedWisdom.key), author: selectedWisdom.author });
+    if (wisdomData.length === 0) {
+      return;
+    }
+
+    const nextIndex = (currentIndex + 1) % wisdomData.length;
+    setCurrentIndex(nextIndex);
+    setCurrentWisdom(wisdomData[nextIndex]);
   };
 
   const handlePreviousWisdom = () => {
-    if (history.length > 0) {
-      const lastWisdom = history.pop();
-      if (lastWisdom) {
-        setCurrentWisdom(lastWisdom);
+    if (wisdomData.length === 0) return;
+
+    const prevIndex = (currentIndex - 1 + wisdomData.length) % wisdomData.length;
+    setCurrentIndex(prevIndex);
+    setCurrentWisdom(wisdomData[prevIndex]);
+  };
+
+  const handleToggleFavorite = async () => {
+    if (!currentWisdom.id) return;
+
+    const isCurrentlyFavorite = isFavorite(currentWisdom.id);
+    if (isCurrentlyFavorite) {
+      const favoriteItem = favorites.find(fav => fav.id === currentWisdom.id);
+      if (favoriteItem) {
+        await removeFavorite(favoriteItem.favoriteId);
       }
-      setHistory([...history]);
+    } else {
+      // Determine quoteType based on whether it's a user_content or master_quotes item
+      // This is a simplification; a more robust solution might involve storing quoteType in wisdomData
+      const quoteType = currentWisdom.id.length === 36 ? 'user' : 'master'; // Assuming UUIDs are user_content and shorter IDs are master_quotes
+      await addFavorite(currentWisdom, quoteType);
     }
   };
 
+  const displayQuote = currentWisdom.content;
+
   return (
     <LinearGradient colors={["#101923", "#3a0000"]} style={styles.container}>
+
       <Quote
-        quote={currentWisdom.quote}
+        quote={displayQuote}
         textStyle={styles.text}
         gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
+        isFavorite={isFavorite(currentWisdom.id)}
+        onToggleFavorite={handleToggleFavorite}
       />
       {currentWisdom.author ? (
         <Text style={styles.author}>{currentWisdom.author}</Text>
@@ -64,7 +114,7 @@ export default function Wisdom() {
           colors={["#cfcfcf28", "#57575744"]}
           label={translate("previous")}
           onPress={handlePreviousWisdom}
-          theme={history.length === 0 ? "disabled" : "secondary"}
+          theme={wisdomData.length === 0 ? "disabled" : "secondary"}
         />
 
         <Button
@@ -84,6 +134,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingBottom: 100, // Add padding to prevent content from being hidden by the sticky button
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#101923",
+  },
+  errorText: {
+    color: "red",
+    fontSize: 18,
+  },
   author: {
     fontFamily: "TimesNewRoman",
     color: "white",
@@ -100,3 +160,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
+
+
+
+

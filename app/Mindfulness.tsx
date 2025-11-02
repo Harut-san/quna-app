@@ -1,60 +1,106 @@
 import { useFonts } from "expo-font";
 import { LinearGradient } from "expo-linear-gradient";
-import { useState, useLayoutEffect } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { useState, useLayoutEffect, useEffect } from "react";
+import { StyleSheet, Text, View, ActivityIndicator } from "react-native";
 import Button from "../components/Button";
 import Quote from "../components/Quote";
-import { prompts } from "../constants/Content";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useNavigation } from "@react-navigation/native";
+import useMindfulness from "../hooks/useMindfulness";
+import useFavorites from "../hooks/useFavorites";
+
+interface MindfulnessItem {
+  id: string;
+  author: string;
+  content: string;
+}
 
 export default function Mindfulness() {
   const [fontsLoaded] = useFonts({
     TimesNewRoman: require("../assets/fonts/TimesNewRoman.ttf"),
   });
-  const { translate } = useLanguage();
+  const { translate, language } = useLanguage();
   const navigation = useNavigation();
+  const { mindfulnessData, loading, error } = useMindfulness();
+  const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites();
+
+  const [currentPrompt, setCurrentPrompt] = useState<MindfulnessItem>({
+    id: "",
+    author: "",
+    content: translate("mindfulnessIntro"),
+  });
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useLayoutEffect(() => {
     navigation.setOptions({ headerTitle: translate('mindfulnessPrompts') });
   }, [navigation, translate]);
 
-  const [currentPrompt, setCurrentPrompt] = useState({
-    quote: translate("mindfulnessIntro"),
-    author: "",
-  });
-  const [history, setHistory] = useState<{ quote: string; author: string }[]>(
-    []
-  );
+  useEffect(() => {
+    if (!loading && !error && mindfulnessData.length > 0) {
+      setCurrentIndex(0);
+      setCurrentPrompt(mindfulnessData[0]);
+    }
+  }, [mindfulnessData, loading, error]);
 
-  if (!fontsLoaded) {
-    // Optionally render a loading spinner
-    return null;
+  if (!fontsLoaded || loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#fff" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.errorText}>Error: {error}</Text>
+      </View>
+    );
   }
 
   const handleShowPrompt = () => {
-    setHistory([...history, currentPrompt]);
-    const randomIndex = Math.floor(Math.random() * prompts.length);
-    const selectedPromptKey = prompts[randomIndex];
-    setCurrentPrompt({ quote: translate(selectedPromptKey), author: "" });
+    if (mindfulnessData.length === 0) {
+      return;
+    }
+
+    const nextIndex = (currentIndex + 1) % mindfulnessData.length;
+    setCurrentIndex(nextIndex);
+    setCurrentPrompt(mindfulnessData[nextIndex]);
   };
 
   const handlePreviousPrompt = () => {
-    if (history.length > 0) {
-      const lastPrompt = history.pop();
-      if (lastPrompt) {
-        setCurrentPrompt(lastPrompt);
+    if (mindfulnessData.length === 0) return;
+
+    const prevIndex = (currentIndex - 1 + mindfulnessData.length) % mindfulnessData.length;
+    setCurrentIndex(prevIndex);
+    setCurrentPrompt(mindfulnessData[prevIndex]);
+  };
+
+  const handleToggleFavorite = async () => {
+    if (!currentPrompt.id) return;
+
+    const isCurrentlyFavorite = isFavorite(currentPrompt.id);
+    if (isCurrentlyFavorite) {
+      const favoriteItem = favorites.find(fav => fav.id === currentPrompt.id);
+      if (favoriteItem) {
+        await removeFavorite(favoriteItem.favoriteId);
       }
-      setHistory([...history]);
+    } else {
+      const quoteType = currentPrompt.id.length === 36 ? 'user' : 'master';
+      await addFavorite(currentPrompt, quoteType);
     }
   };
+
+  const displayQuote = currentPrompt.content;
 
   return (
     <LinearGradient colors={["#101923", "#0048acff"]} style={styles.container}>
       <Quote
-        quote={currentPrompt.quote}
+        quote={displayQuote}
         textStyle={styles.text}
         gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
+        isFavorite={isFavorite(currentPrompt.id)}
+        onToggleFavorite={handleToggleFavorite}
       />
       {currentPrompt.author ? (
         <Text style={styles.author}>{currentPrompt.author}</Text>
@@ -63,7 +109,7 @@ export default function Mindfulness() {
         <Button
           label={translate("previous")}
           onPress={handlePreviousPrompt}
-          theme={history.length === 0 ? "disabled" : "secondary"}
+          theme={mindfulnessData.length === 0 ? "disabled" : "secondary"}
         />
 
         <Button
@@ -82,6 +128,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingBottom: 100, // Add padding to prevent content from being hidden by the sticky button
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#101923",
+  },
+  errorText: {
+    color: "red",
+    fontSize: 18,
   },
   author: {
     fontFamily: "TimesNewRoman",

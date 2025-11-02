@@ -1,60 +1,106 @@
 import { useFonts } from "expo-font";
 import { LinearGradient } from "expo-linear-gradient";
-import { useState, useLayoutEffect } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { useState, useLayoutEffect, useEffect } from "react";
+import { StyleSheet, Text, View, ActivityIndicator } from "react-native";
 import Button from "../components/Button";
 import Quote from "../components/Quote";
-import { motivations } from "../constants/Content";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useNavigation } from "@react-navigation/native";
+import useMotivation from "../hooks/useMotivation";
+import useFavorites from "../hooks/useFavorites";
+
+interface MotivationItem {
+  id: string;
+  author: string;
+  content: string;
+}
 
 export default function DailyMotivation() {
   const [fontsLoaded] = useFonts({
     TimesNewRoman: require("../assets/fonts/TimesNewRoman.ttf"),
   });
-  const { translate } = useLanguage();
+  const { translate, language } = useLanguage();
   const navigation = useNavigation();
+  const { motivationData, loading, error } = useMotivation();
+  const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites();
+
+  const [currentMotivation, setCurrentMotivation] = useState<MotivationItem>({
+    id: "",
+    author: "",
+    content: translate("dailyMotivationIntro"),
+  });
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useLayoutEffect(() => {
     navigation.setOptions({ headerTitle: translate('dailyMotivation') });
   }, [navigation, translate]);
 
-  const [currentMotivation, setCurrentMotivation] = useState({
-    quote: translate("dailyMotivationIntro"),
-    author: "",
-  });
-  const [history, setHistory] = useState<{ quote: string; author: string }[]>(
-    []
-  );
+  useEffect(() => {
+    if (!loading && !error && motivationData.length > 0) {
+      setCurrentIndex(0);
+      setCurrentMotivation(motivationData[0]);
+    }
+  }, [motivationData, loading, error]);
 
-  if (!fontsLoaded) {
-    // Optionally render a loading spinner
-    return null;
+  if (!fontsLoaded || loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#fff" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.errorText}>Error: {error}</Text>
+      </View>
+    );
   }
 
   const handleShowMotivation = () => {
-    setHistory([...history, currentMotivation]);
-    const randomIndex = Math.floor(Math.random() * motivations.length);
-    const selectedMotivation = motivations[randomIndex];
-    setCurrentMotivation({ quote: translate(selectedMotivation.key), author: selectedMotivation.author });
+    if (motivationData.length === 0) {
+      return;
+    }
+
+    const nextIndex = (currentIndex + 1) % motivationData.length;
+    setCurrentIndex(nextIndex);
+    setCurrentMotivation(motivationData[nextIndex]);
   };
 
   const handlePreviousMotivation = () => {
-    if (history.length > 0) {
-      const lastMotivation = history.pop();
-      if (lastMotivation) {
-        setCurrentMotivation(lastMotivation);
+    if (motivationData.length === 0) return;
+
+    const prevIndex = (currentIndex - 1 + motivationData.length) % motivationData.length;
+    setCurrentIndex(prevIndex);
+    setCurrentMotivation(motivationData[prevIndex]);
+  };
+
+  const handleToggleFavorite = async () => {
+    if (!currentMotivation.id) return;
+
+    const isCurrentlyFavorite = isFavorite(currentMotivation.id);
+    if (isCurrentlyFavorite) {
+      const favoriteItem = favorites.find(fav => fav.id === currentMotivation.id);
+      if (favoriteItem) {
+        await removeFavorite(favoriteItem.favoriteId);
       }
-      setHistory([...history]);
+    } else {
+      const quoteType = currentMotivation.id.length === 36 ? 'user' : 'master';
+      await addFavorite(currentMotivation, quoteType);
     }
   };
+
+  const displayQuote = currentMotivation.content;
 
   return (
     <LinearGradient colors={["#101923", "#003a05ff"]} style={styles.container}>
       <Quote
-        quote={currentMotivation.quote}
+        quote={displayQuote}
         textStyle={styles.text}
         gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
+        isFavorite={isFavorite(currentMotivation.id)}
+        onToggleFavorite={handleToggleFavorite}
       />
       {currentMotivation.author ? (
         <Text style={styles.author}>{currentMotivation.author}</Text>
@@ -63,7 +109,7 @@ export default function DailyMotivation() {
         <Button
           label={translate("previous")}
           onPress={handlePreviousMotivation}
-          theme={history.length === 0 ? "disabled" : "secondary"}
+          theme={motivationData.length === 0 ? "disabled" : "secondary"}
         />
 
         <Button
@@ -82,6 +128,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingBottom: 100, // Add padding to prevent content from being hidden by the sticky button
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#101923",
+  },
+  errorText: {
+    color: "red",
+    fontSize: 18,
   },
   author: {
     fontFamily: "TimesNewRoman",
