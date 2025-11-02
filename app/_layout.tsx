@@ -1,51 +1,39 @@
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { LogBox, SafeAreaView } from "react-native";
 import { LanguageProvider } from "../contexts/LanguageContext";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 import AuthScreen from "./AuthScreen";
-import * as Font from "expo-font";
-import { AntDesign } from '@expo/vector-icons';
+import { useFonts } from "expo-font";
+import { AntDesign } from "@expo/vector-icons";
 
 LogBox.ignoreAllLogs(true); // Ignore all log notifications
 
 function RootLayoutContent() {
   const { session, loading: authLoading } = useAuth();
-  const [fontsLoaded, setFontsLoaded] = useState(false);
-
-  useEffect(() => {
-    async function loadAppFonts() {
-      try {
-        await Font.loadAsync(AntDesign.font);
-        setFontsLoaded(true);
-      } catch (e) {
-        console.warn(e);
-      }
-    }
-
-    loadAppFonts();
-  }, []);
+  const [fontsLoaded] = useFonts({
+    ...AntDesign.font,
+    TimesNewRoman: require("../assets/fonts/TimesNewRoman.ttf"),
+  });
 
   if (authLoading || !fontsLoaded) {
-    // You might want to render a loading spinner here
-    return null; // Or a simple loading indicator
+    return null; // Or a loading indicator
   }
 
   return (
     <LanguageProvider>
-      <StatusBar style="light" /> {/* sets clock and battery style to light */}
+      <StatusBar style="light" />
       {session && session.user ? (
         <Stack>
           <Stack.Screen
             name="(tabs)"
             options={{
               title: "",
-              headerShown: false, //property to prevent redndering header
+              headerShown: false,
             }}
           />
           <Stack.Screen name="+not-found" options={{}} />
-
           <Stack.Screen
             name="Wisdom"
             options={{ title: "Wisdom", ...commonOptions }}
@@ -68,7 +56,7 @@ function RootLayoutContent() {
           />
         </Stack>
       ) : (
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#101923' }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: "#101923" }}>
           <AuthScreen />
         </SafeAreaView>
       )}
@@ -87,9 +75,6 @@ export default function RootLayout() {
 const commonOptions = {
   headerStyle: { backgroundColor: "#101923" },
   headerTintColor: "#fff",
-  headerTitleAlign: "center", //help
-  headerShadowVisible: false, //help
-
-  // HeaderTitle: { alignSelf: "center" },
-  // headerTitleStyle: { fontWeight: 900 },
+  headerTitleAlign: "center",
+  headerShadowVisible: false,
 };

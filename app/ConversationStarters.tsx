@@ -8,6 +8,7 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { useNavigation } from "@react-navigation/native";
 import useConversationStarters from "../hooks/useConversationStarters";
 import useFavorites from "../hooks/useFavorites";
+import { AntDesign } from "@expo/vector-icons";
 
 interface ConversationStarterItem {
   id: string;
@@ -18,6 +19,7 @@ interface ConversationStarterItem {
 export default function ConversationStarters() {
   const [fontsLoaded] = useFonts({
     TimesNewRoman: require("../assets/fonts/TimesNewRoman.ttf"),
+    ...AntDesign.font,
   });
   const { translate, language } = useLanguage();
   const navigation = useNavigation();
@@ -153,5 +155,12 @@ const styles = StyleSheet.create({
     right: 0,
     paddingBottom: 20,
     alignItems: "center",
+  },
+  author: {
+    fontFamily: "TimesNewRoman",
+    color: "white",
+    fontSize: 20,
+    fontStyle: "italic",
+    marginBottom: 20,
   },
 });

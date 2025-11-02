@@ -1,7 +1,10 @@
-import { AntDesign } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
+
+const heartFilled = require("../assets/images/heart-filled.svg");
+const heartOutlined = require("../assets/images/heart-outlined.svg");
 
 interface QuoteProps {
   quote: string;
@@ -40,10 +43,9 @@ const Quote: React.FC<QuoteProps> = ({
           onPress={onToggleFavorite}
           style={styles.favoriteButton}
         >
-          <AntDesign
-            name={isFavorite ? "heart" : "hearto"}
-            size={24}
-            color={isFavorite ? "#FFD700" : "white"}
+          <Image
+            source={isFavorite ? heartFilled : heartOutlined}
+            style={{ width: 24, height: 24 }}
           />
         </TouchableOpacity>
       )}
@@ -60,7 +62,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
+    width: "86%",
     borderColor: "#c5c5c533",
+    paddingTop: 50,
+    paddingBottom: 50,
   },
   favoriteButton: {
     position: "absolute",

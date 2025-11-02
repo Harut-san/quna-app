@@ -8,6 +8,7 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { useNavigation } from "@react-navigation/native";
 import useMantra from "../hooks/useMantra";
 import useFavorites from "../hooks/useFavorites";
+import { AntDesign } from "@expo/vector-icons";
 
 interface MantraItem {
   id: string;
@@ -18,6 +19,7 @@ interface MantraItem {
 export default function Mantras() {
   const [fontsLoaded] = useFonts({
     TimesNewRoman: require("../assets/fonts/TimesNewRoman.ttf"),
+    ...AntDesign.font,
   });
   const { translate, language } = useLanguage();
   const navigation = useNavigation();

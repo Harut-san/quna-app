@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { supabase } from '../constants/supabase';
 import Collapsible from 'react-native-collapsible';
-import useFavorites from '../hooks/useFavorites';
+import useFavorites, { FavoriteItem } from '../hooks/useFavorites';
 import QuoteComponent from '../components/Quote'; // Renamed to avoid conflict with interface
 
 interface QuoteItem {
@@ -16,8 +16,8 @@ interface QuoteItem {
 export default function MyQuotesScreen() {
   const [addedQuotes, setAddedQuotes] = useState<QuoteItem[]>([]);
   const [loadingAddedQuotes, setLoadingAddedQuotes] = useState(true);
-  const [isAddedCollapsed, setIsAddedCollapsed] = useState(false);
-  const [isFavoritesCollapsed, setIsFavoritesCollapsed] = useState(false); // Favorites collapsed by default
+  const [isAddedCollapsed, setIsAddedCollapsed] = useState(true);
+  const [isFavoritesCollapsed, setIsFavoritesCollapsed] = useState(true); // Favorites collapsed by default
 
   const { favorites, loading: loadingFavorites, error: favoritesError, addFavorite, removeFavorite, isFavorite } = useFavorites();
 
@@ -65,6 +65,10 @@ export default function MyQuotesScreen() {
     }
   };
 
+  const handleUnfavorite = async (favoriteId: string) => {
+    await removeFavorite(favoriteId);
+  };
+
   const renderQuoteItem = ({ item }: { item: QuoteItem }) => (
     <QuoteComponent
       quote={item.content}
@@ -75,13 +79,13 @@ export default function MyQuotesScreen() {
     />
   );
 
-  const renderFavoriteQuoteItem = ({ item }: { item: QuoteItem }) => (
+  const renderFavoriteQuoteItem = ({ item }: { item: FavoriteItem }) => (
     <QuoteComponent
       quote={item.content}
       textStyle={styles.quoteContent}
       author={item.author}
       isFavorite={true} // Always true for favorites screen
-      onToggleFavorite={() => handleToggleFavorite(item, item.quoteType as 'master' | 'user')} // Use quoteType from favorite item
+      onToggleFavorite={() => handleUnfavorite(item.favoriteId)}
     />
   );
 

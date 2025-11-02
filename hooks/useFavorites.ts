@@ -8,7 +8,7 @@ interface WisdomItem {
   content: string;
 }
 
-interface FavoriteItem extends WisdomItem {
+export interface FavoriteItem extends WisdomItem {
   favoriteId: string; // The ID of the favorite entry in the user_favorites table
   quoteType: 'master' | 'user';
 }
