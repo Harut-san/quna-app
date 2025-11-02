@@ -99,15 +99,11 @@ export default function Mantras() {
     <LinearGradient colors={["#101923", "#6f0066ff"]} style={styles.container}>
       <Quote
         quote={displayQuote}
-        textStyle={styles.text}
+        author={currentMantra.author}
         gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
         isFavorite={isFavorite(currentMantra.id)}
         onToggleFavorite={handleToggleFavorite}
       />
-
-      {currentMantra.author ? (
-        <Text style={styles.author}>{currentMantra.author}</Text>
-      ) : null}
       <View style={styles.buttonContainerSticky}>
         <Button
           label={translate("previous")}
@@ -142,13 +138,7 @@ const styles = StyleSheet.create({
     color: "red",
     fontSize: 18,
   },
-  author: {
-    fontFamily: "TimesNewRoman",
-    color: "white",
-    fontSize: 20,
-    fontStyle: "italic",
-    marginBottom: 20,
-  },
+
   buttonContainerSticky: {
     position: "absolute",
     bottom: 20,

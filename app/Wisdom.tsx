@@ -101,14 +101,11 @@ export default function Wisdom() {
 
       <Quote
         quote={displayQuote}
-        textStyle={styles.text}
+        author={currentWisdom.author}
         gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
         isFavorite={isFavorite(currentWisdom.id)}
         onToggleFavorite={handleToggleFavorite}
       />
-      {currentWisdom.author ? (
-        <Text style={styles.author}>{currentWisdom.author}</Text>
-      ) : null}
       <View style={styles.buttonContainerSticky}>
         <Button
           colors={["#cfcfcf28", "#57575744"]}
@@ -144,13 +141,7 @@ const styles = StyleSheet.create({
     color: "red",
     fontSize: 18,
   },
-  author: {
-    fontFamily: "TimesNewRoman",
-    color: "white",
-    fontSize: 20,
-    fontStyle: "italic",
-    marginBottom: 20,
-  },
+
   buttonContainerSticky: {
     position: "absolute",
     bottom: 20,

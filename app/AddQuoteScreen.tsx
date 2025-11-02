@@ -1,11 +1,18 @@
 import { Picker } from "@react-native-picker/picker";
 import React, { useState } from "react";
-import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import Button from "../components/Button"; // Assuming your custom Button component
 import { supabase } from "../constants/supabase";
 
 const quoteCategories = [
-  "wisdom",
+  "Wisdom",
   "Conversation Starters",
   "Mantras",
   "Daily Motivation",
@@ -13,14 +20,27 @@ const quoteCategories = [
 ];
 
 export default function AddQuoteScreen() {
-  const [content, setContent] = useState("");
+  const [contentEn, setContentEn] = useState("");
+  const [contentPl, setContentPl] = useState("");
   const [author, setAuthor] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(quoteCategories[0]);
+  const [selectedLanguage, setSelectedLanguage] = useState("en"); // 'en', 'pl', or 'both'
   const [loading, setLoading] = useState(false);
 
   async function handleSubmitQuote() {
-    if (!content.trim()) {
-      Alert.alert("Error", "Quote content cannot be empty.");
+    if (selectedLanguage === "en" && !contentEn.trim()) {
+      Alert.alert("Error", "English quote content cannot be empty.");
+      return;
+    }
+    if (selectedLanguage === "pl" && !contentPl.trim()) {
+      Alert.alert("Error", "Polish quote content cannot be empty.");
+      return;
+    }
+    if (
+      selectedLanguage === "both" &&
+      (!contentEn.trim() || !contentPl.trim())
+    ) {
+      Alert.alert("Error", "Both English and Polish quote content cannot be empty.");
       return;
     }
 
@@ -37,7 +57,9 @@ export default function AddQuoteScreen() {
 
     const { error } = await supabase.from("user_content").insert({
       user_id: user.id,
-      content: content.trim(),
+      content_en: contentEn.trim() || null,
+      content_pl: contentPl.trim() || null,
+      language: selectedLanguage,
       author: author.trim() || null,
       category: selectedCategory,
     });
@@ -46,24 +68,56 @@ export default function AddQuoteScreen() {
       Alert.alert("Error adding quote", error.message);
     } else {
       Alert.alert("Success", "Quote added successfully!");
-      setContent("");
+      setContentEn("");
+      setContentPl("");
       setAuthor("");
       setSelectedCategory(quoteCategories[0]);
+      setSelectedLanguage("en");
     }
     setLoading(false);
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
       <Text style={styles.title}>Add Your Own Quote</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter your quote here..."
-        placeholderTextColor="#ccc"
-        multiline
-        value={content}
-        onChangeText={setContent}
-      />
+
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={selectedLanguage}
+          onValueChange={(itemValue) => setSelectedLanguage(itemValue)}
+          style={styles.picker}
+          itemStyle={styles.pickerItem}
+        >
+          <Picker.Item label="English" value="en" />
+          <Picker.Item label="Polish" value="pl" />
+          <Picker.Item label="Both (English & Polish)" value="both" />
+        </Picker>
+      </View>
+
+      {(selectedLanguage === "en" || selectedLanguage === "both") && (
+        <TextInput
+          style={styles.input}
+          placeholder="Enter your quote in English (max 600 chars)"
+          placeholderTextColor="#ccc"
+          multiline
+          value={contentEn}
+          onChangeText={setContentEn}
+          maxLength={600}
+        />
+      )}
+
+      {(selectedLanguage === "pl" || selectedLanguage === "both") && (
+        <TextInput
+          style={styles.input}
+          placeholder="Wpisz cytat po polsku (max 600 znaków)"
+          placeholderTextColor="#ccc"
+          multiline
+          value={contentPl}
+          onChangeText={setContentPl}
+          maxLength={600}
+        />
+      )}
+
       <TextInput
         style={styles.input}
         placeholder="Author (optional)"
@@ -91,13 +145,13 @@ export default function AddQuoteScreen() {
           disabled={loading}
         />
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  scrollContainer: {
+    flexGrow: 1,
     padding: 20,
     backgroundColor: "#101923",
     alignItems: "center",

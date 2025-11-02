@@ -99,14 +99,11 @@ export default function ConversationStarters() {
     <LinearGradient colors={["#101923", "#00565dff"]} style={styles.container}>
       <Quote
         quote={displayQuote}
-        textStyle={styles.text}
+        author={currentStarter.author}
         gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
         isFavorite={isFavorite(currentStarter.id)}
         onToggleFavorite={handleToggleFavorite}
       />
-      {currentStarter.author ? (
-        <Text style={styles.author}>{currentStarter.author}</Text>
-      ) : null}
       <View style={styles.buttonContainerSticky}>
         <Button
           label={translate("previous")}
@@ -141,13 +138,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#c5c5c533",
   },
-  text: {
-    fontFamily: "TimesNewRoman",
-    textAlign: "center",
-    color: "white",
-    fontSize: 32,
-    fontStyle: "italic",
-  },
+
   buttonContainerSticky: {
     position: "absolute",
     bottom: 20,
@@ -156,11 +147,5 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     alignItems: "center",
   },
-  author: {
-    fontFamily: "TimesNewRoman",
-    color: "white",
-    fontSize: 20,
-    fontStyle: "italic",
-    marginBottom: 20,
-  },
+
 });

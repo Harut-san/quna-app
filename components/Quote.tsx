@@ -8,18 +8,21 @@ const heartOutlined = require("../assets/images/heart-outlined.svg");
 
 interface QuoteProps {
   quote: string;
-  textStyle: any;
+  author?: string | null;
   gradientColors?: string[];
   isFavorite?: boolean;
   onToggleFavorite?: () => void;
+  onDelete?: () => void;
 }
 
+import { Feather } from "@expo/vector-icons";
 const Quote: React.FC<QuoteProps> = ({
   quote,
-  textStyle,
+  author,
   gradientColors,
   isFavorite,
   onToggleFavorite,
+  onDelete,
 }) => {
   const defaultTextStyle = {
     fontFamily: "TimesNewRoman",
@@ -37,7 +40,13 @@ const Quote: React.FC<QuoteProps> = ({
       }
       style={styles.textBackgroundGradient}
     >
-      <Text style={[defaultTextStyle, textStyle]}>{quote}</Text>
+      {onDelete && (
+        <TouchableOpacity onPress={onDelete} style={styles.deleteButton}>
+          <Feather name="trash-2" size={24} color="white" />
+        </TouchableOpacity>
+      )}
+      <Text style={defaultTextStyle}>{quote}</Text>
+      {author ? <Text style={styles.authorText}>{author}</Text> : null}
       {onToggleFavorite && (
         <TouchableOpacity
           onPress={onToggleFavorite}
@@ -72,6 +81,19 @@ const styles = StyleSheet.create({
     top: 10,
     right: 10,
     padding: 5,
+  },
+  deleteButton: {
+    position: "absolute",
+    top: 10,
+    left: 10,
+    padding: 5,
+  },
+  authorText: {
+    fontFamily: "TimesNewRoman",
+    color: "white",
+    fontSize: 16,
+    fontStyle: "italic",
+    marginTop: 10,
   },
 });
 

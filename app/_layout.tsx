@@ -1,12 +1,12 @@
+import { AntDesign } from "@expo/vector-icons";
+import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React from "react";
 import { LogBox, SafeAreaView } from "react-native";
-import { LanguageProvider } from "../contexts/LanguageContext";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
+import { LanguageProvider } from "../contexts/LanguageContext";
 import AuthScreen from "./AuthScreen";
-import { useFonts } from "expo-font";
-import { AntDesign } from "@expo/vector-icons";
 
 LogBox.ignoreAllLogs(true); // Ignore all log notifications
 
@@ -53,6 +53,14 @@ function RootLayoutContent() {
           <Stack.Screen
             name="Mindfulness"
             options={{ title: "Mindfulness", ...commonOptions }}
+          />
+          <Stack.Screen
+            name="MyQuotesScreen"
+            options={{ title: "My Quotes", ...commonOptions }}
+          />
+          <Stack.Screen
+            name="AddQuoteScreen"
+            options={{ title: "Add Quotes", ...commonOptions }}
           />
         </Stack>
       ) : (

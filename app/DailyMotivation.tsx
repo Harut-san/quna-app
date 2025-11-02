@@ -97,14 +97,11 @@ export default function DailyMotivation() {
     <LinearGradient colors={["#101923", "#003a05ff"]} style={styles.container}>
       <Quote
         quote={displayQuote}
-        textStyle={styles.text}
+        author={currentMotivation.author}
         gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
         isFavorite={isFavorite(currentMotivation.id)}
         onToggleFavorite={handleToggleFavorite}
       />
-      {currentMotivation.author ? (
-        <Text style={styles.author}>{currentMotivation.author}</Text>
-      ) : null}
       <View style={styles.buttonContainerSticky}>
         <Button
           label={translate("previous")}
@@ -139,13 +136,7 @@ const styles = StyleSheet.create({
     color: "red",
     fontSize: 18,
   },
-  author: {
-    fontFamily: "TimesNewRoman",
-    color: "white",
-    fontSize: 20,
-    fontStyle: "italic",
-    marginBottom: 20,
-  },
+
   buttonContainerSticky: {
     position: "absolute",
     bottom: 20,

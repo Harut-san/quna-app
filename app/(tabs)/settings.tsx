@@ -1,20 +1,21 @@
 import Button from "@/components/Button";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Link } from "expo-router";
 import { useEffect, useState } from "react";
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import Toggle from "../../components/Toggle";
 import { APP_VERSION } from "../../constants/AppInfo";
+import { supabase } from "../../constants/supabase";
 import { useLanguage } from "../../contexts/LanguageContext";
-import { supabase } from '../../constants/supabase';
-import { Link } from 'expo-router';
 
-type QuoteSource = 'master' | 'user' | 'both';
+type QuoteSource = "master" | "user" | "both";
 
 const QUOTE_SOURCE_KEY = "quoteSourcePreference";
 
 export default function SettingsScreen() {
   const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
-  const [quoteSourcePreference, setQuoteSourcePreference] = useState<QuoteSource>('both');
+  const [quoteSourcePreference, setQuoteSourcePreference] =
+    useState<QuoteSource>("both");
   const { language, setLanguage, translate } = useLanguage();
 
   useEffect(() => {
@@ -51,29 +52,38 @@ export default function SettingsScreen() {
     }
   };
 
-  const handleQuoteSourceToggle = async (source: 'master' | 'user', value: boolean) => {
+  const handleQuoteSourceToggle = async (
+    source: "master" | "user",
+    value: boolean
+  ) => {
     let newPreference: QuoteSource = quoteSourcePreference;
 
-    if (source === 'master') {
+    if (source === "master") {
       if (value) {
-        newPreference = (quoteSourcePreference === 'user' || quoteSourcePreference === 'both') ? 'both' : 'master';
+        newPreference =
+          quoteSourcePreference === "user" || quoteSourcePreference === "both"
+            ? "both"
+            : "master";
       } else {
-        if (quoteSourcePreference === 'both') {
-          newPreference = 'user';
-        } else if (quoteSourcePreference === 'master') {
+        if (quoteSourcePreference === "both") {
+          newPreference = "user";
+        } else if (quoteSourcePreference === "master") {
           // Prevent disabling both, if master is the only one enabled, enable user
-          newPreference = 'user';
+          newPreference = "user";
         }
       }
-    } else if (source === 'user') {
+    } else if (source === "user") {
       if (value) {
-        newPreference = (quoteSourcePreference === 'master' || quoteSourcePreference === 'both') ? 'both' : 'user';
+        newPreference =
+          quoteSourcePreference === "master" || quoteSourcePreference === "both"
+            ? "both"
+            : "user";
       } else {
-        if (quoteSourcePreference === 'both') {
-          newPreference = 'master';
-        } else if (quoteSourcePreference === 'user') {
+        if (quoteSourcePreference === "both") {
+          newPreference = "master";
+        } else if (quoteSourcePreference === "user") {
           // Prevent disabling both, if user is the only one enabled, enable master
-          newPreference = 'master';
+          newPreference = "master";
         }
       }
     }
@@ -89,8 +99,8 @@ export default function SettingsScreen() {
   async function handleSignOut() {
     const { error } = await supabase.auth.signOut();
     if (error) {
-      console.error('Error signing out:', error.message);
-      alert('Error signing out: ' + error.message);
+      console.error("Error signing out:", error.message);
+      alert("Error signing out: " + error.message);
     }
   }
 
@@ -112,18 +122,22 @@ export default function SettingsScreen() {
         offLabel={translate("english")}
       />
 
-      <Text style={styles.sectionTitle}>{translate("quoteSources")}</Text>
+      <Text style={styles.sectionTitle}>{translate("Quote sources")}</Text>
       <Toggle
         label={translate("showMyQuotes")}
-        isOn={quoteSourcePreference === 'user' || quoteSourcePreference === 'both'}
-        onToggle={(value) => handleQuoteSourceToggle('user', value)}
+        isOn={
+          quoteSourcePreference === "user" || quoteSourcePreference === "both"
+        }
+        onToggle={(value) => handleQuoteSourceToggle("user", value)}
         onLabel={translate("on")}
         offLabel={translate("off")}
       />
       <Toggle
         label={translate("showMasterQuotes")}
-        isOn={quoteSourcePreference === 'master' || quoteSourcePreference === 'both'}
-        onToggle={(value) => handleQuoteSourceToggle('master', value)}
+        isOn={
+          quoteSourcePreference === "master" || quoteSourcePreference === "both"
+        }
+        onToggle={(value) => handleQuoteSourceToggle("master", value)}
         onLabel={translate("on")}
         offLabel={translate("off")}
       />
@@ -141,27 +155,19 @@ export default function SettingsScreen() {
       </View>
       <View style={styles.addQuoteButtonContainer}>
         <Link href="/AddQuoteScreen" asChild>
-          <Button
-            label="Add My Quote"
-            theme="primary"
-          />
+          <Button label="Add My Quote" theme="primary" />
         </Link>
       </View>
-      <View style={styles.addQuoteButtonContainer}> {/* Reusing container style */}
+      <View style={styles.addQuoteButtonContainer}>
+        {" "}
+        {/* Reusing container style */}
         <Link href="/MyQuotesScreen" asChild>
-          <Button
-            label="My Quotes"
-            theme="primary"
-          />
+          <Button label="My Quotes" theme="primary" />
         </Link>
       </View>
 
       <View style={styles.logoutButtonContainer}>
-        <Button
-          label="Log Out"
-          theme="secondary"
-          onPress={handleSignOut}
-        />
+        <Button label="Log Out" theme="secondary" onPress={handleSignOut} />
       </View>
     </View>
   );
@@ -202,4 +208,3 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
-

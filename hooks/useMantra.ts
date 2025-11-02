@@ -6,7 +6,8 @@ import { useLanguage } from "../contexts/LanguageContext";
 interface MantraItem {
   id: string;
   author: string;
-  content: string;
+  content_en: string;
+  content_pl: string;
 }
 
 type QuoteSource = 'master' | 'user' | 'both';
@@ -69,14 +70,19 @@ const useMantra = () => {
         if (currentPreference === 'user' || currentPreference === 'both') {
           const { data: userData, error: userError } = await supabase
             .from('user_content')
-            .select('id, author, content')
+            .select('id, author, content_en, content_pl')
             .eq('category', 'Mantras'); // Filter by category 'Mantras'
 
           if (userError) {
             throw userError;
           }
           if (userData) {
-            fetchedMantra = [...fetchedMantra, ...userData];
+            const mappedUserData = userData.map(item => ({
+              id: item.id,
+              author: item.author,
+              content: language === 'pl' ? item.content_pl : item.content_en,
+            }));
+            fetchedMantra = [...fetchedMantra, ...mappedUserData];
           }
         }
 

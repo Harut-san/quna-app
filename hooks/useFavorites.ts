@@ -5,7 +5,8 @@ import { useAuth } from "../contexts/AuthContext";
 interface WisdomItem {
   id: string;
   author: string;
-  content: string;
+  content_en: string | null;
+  content_pl: string | null;
 }
 
 export interface FavoriteItem extends WisdomItem {
@@ -31,7 +32,7 @@ const useFavorites = () => {
       try {
         const { data, error } = await supabase
           .from('user_favorites')
-          .select('id, quote_id, quote_author, quote_content, quote_type')
+          .select('id, quote_id, quote_author, quote_content_en, quote_content_pl, quote_type')
           .eq('user_id', user.id);
 
         if (error) {
@@ -43,7 +44,8 @@ const useFavorites = () => {
             id: item.quote_id, // Original quote ID
             favoriteId: item.id, // ID from user_favorites
             author: item.quote_author,
-            content: item.quote_content,
+            content_en: item.quote_content_en,
+            content_pl: item.quote_content_pl,
             quoteType: item.quote_type,
           }));
           setFavorites(mappedFavorites);
@@ -89,7 +91,8 @@ const useFavorites = () => {
         .insert({
           user_id: user.id,
           quote_id: quote.id,
-          quote_content: quote.content,
+          quote_content_en: quote.content_en,
+          quote_content_pl: quote.content_pl,
           quote_author: quote.author,
           quote_type: quoteType,
         })
@@ -104,7 +107,8 @@ const useFavorites = () => {
           id: data[0].quote_id,
           favoriteId: data[0].id,
           author: data[0].quote_author,
-          content: data[0].quote_content,
+          content_en: data[0].quote_content_en,
+          content_pl: data[0].quote_content_pl,
           quoteType: data[0].quote_type,
         };
         setFavorites(prev => [...prev, newFavorite]);
