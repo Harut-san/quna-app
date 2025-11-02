@@ -14,6 +14,8 @@ interface WisdomItem {
   id: string;
   author: string;
   content: string;
+  content_en: string | null;
+  content_pl: string | null;
 }
 
 export default function Wisdom() {
@@ -29,6 +31,8 @@ export default function Wisdom() {
     id: "",
     author: "",
     content: translate("wisdomIntro"),
+    content_en: translate("wisdomIntro"),
+    content_pl: translate("wisdomIntro"),
   });
   const [currentIndex, setCurrentIndex] = useState(0);
 

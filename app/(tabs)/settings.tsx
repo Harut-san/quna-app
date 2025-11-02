@@ -159,8 +159,7 @@ export default function SettingsScreen() {
         </Link>
       </View>
       <View style={styles.addQuoteButtonContainer}>
-        {" "}
-        {/* Reusing container style */}
+
         <Link href="/MyQuotesScreen" asChild>
           <Button label="My Quotes" theme="primary" />
         </Link>
