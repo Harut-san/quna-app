@@ -1,16 +1,17 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '../constants/supabase';
+import { useState, useEffect, useCallback } from "react";
+import { supabase } from "../constants/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useLanguage } from "../contexts/LanguageContext";
+import { useAuth } from "../contexts/AuthContext";
 
 interface WisdomItem {
   id: string;
   author: string;
   content_en: string;
   content_pl: string;
+  favorited_by: string[];
 }
 
-type QuoteSource = 'master' | 'user' | 'both';
+type QuoteSource = "master" | "user" | "both";
 
 const QUOTE_SOURCE_KEY = "quoteSourcePreference";
 
@@ -27,79 +28,76 @@ const useWisdom = () => {
   const [wisdomData, setWisdomData] = useState<WisdomItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [quoteSourcePreference, setQuoteSourcePreference] = useState<QuoteSource>('both');
-  const { language } = useLanguage();
+  const [quoteSourcePreference, setQuoteSourcePreference] =
+    useState<QuoteSource>("both");
+  const { user } = useAuth();
+
+  const fetchWisdom = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    let fetchedWisdom: WisdomItem[] = [];
+
+    // Load preference first
+    let currentPreference: QuoteSource = "both"; // Default
+    try {
+      const savedQuoteSource = await AsyncStorage.getItem(QUOTE_SOURCE_KEY);
+      if (savedQuoteSource !== null) {
+        currentPreference = savedQuoteSource as QuoteSource;
+      }
+    } catch (e) {
+      console.error("Failed to load quote source preference", e);
+    }
+    setQuoteSourcePreference(currentPreference);
+
+    try {
+      if (currentPreference === "master" || currentPreference === "both") {
+        const { data: masterData, error: masterError } = await supabase
+          .from("quotes")
+          .select("id, author, content_en, content_pl, favorited_by")
+          .eq("is_master", true)
+          .eq("category", "Wisdom");
+
+        if (masterError) {
+          throw masterError;
+        }
+        if (masterData) {
+          fetchedWisdom = [...fetchedWisdom, ...masterData];
+        }
+      }
+
+      if (
+        (currentPreference === "user" || currentPreference === "both") &&
+        user
+      ) {
+        const { data: userData, error: userError } = await supabase
+          .from("quotes")
+          .select("id, author, content_en, content_pl, favorited_by")
+          .eq("category", "Wisdom")
+          .eq("user_id", user.id)
+          .eq("is_master", false);
+
+        if (userError) {
+          throw userError;
+        }
+        if (userData) {
+          fetchedWisdom = [...fetchedWisdom, ...userData];
+        }
+      }
+
+      // Shuffle the combined array
+      setWisdomData(shuffleArray(fetchedWisdom));
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
 
   useEffect(() => {
-    const fetchWisdom = async () => {
-      setLoading(true);
-      setError(null);
-      let fetchedWisdom: WisdomItem[] = [];
-
-      // Load preference first
-      let currentPreference: QuoteSource = 'both'; // Default
-      try {
-        const savedQuoteSource = await AsyncStorage.getItem(QUOTE_SOURCE_KEY);
-        if (savedQuoteSource !== null) {
-          currentPreference = savedQuoteSource as QuoteSource;
-        }
-      } catch (e) {
-        console.error("Failed to load quote source preference", e);
-      }
-      setQuoteSourcePreference(currentPreference);
-
-      try {
-        if (currentPreference === 'master' || currentPreference === 'both') {
-          const { data: masterData, error: masterError } = await supabase
-            .from('master_quotes')
-            .select('id, author, content_en, content_pl');
-
-          if (masterError) {
-            throw masterError;
-          }
-          if (masterData) {
-            const mappedMasterData = masterData.map(item => ({
-              id: item.id,
-              author: item.author,
-              content: language === 'pl' ? item.content_pl : item.content_en,
-            }));
-            fetchedWisdom = [...fetchedWisdom, ...mappedMasterData];
-          }
-        }
-
-        if (currentPreference === 'user' || currentPreference === 'both') {
-          const { data: userData, error: userError } = await supabase
-            .from('user_content')
-            .select('id, author, content_en, content_pl')
-            .eq('category', 'wisdom');
-
-          if (userError) {
-            throw userError;
-          }
-          if (userData) {
-            const mappedUserData = userData.map(item => ({
-              id: item.id,
-              author: item.author,
-              content: language === 'pl' ? item.content_pl : item.content_en,
-            }));
-            fetchedWisdom = [...fetchedWisdom, ...mappedUserData];
-          }
-        }
-
-        // Shuffle the combined array
-        setWisdomData(shuffleArray(fetchedWisdom));
-      } catch (e: any) {
-        setError(e.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchWisdom();
-  }, [language]);
+  }, [fetchWisdom]);
 
-  return { wisdomData, loading, error };
+  return { wisdomData, loading, error, refetchWisdom: fetchWisdom };
 };
-
 
 export default useWisdom;

@@ -13,7 +13,9 @@ import { AntDesign } from "@expo/vector-icons";
 interface MantraItem {
   id: string;
   author: string;
-  content: string;
+  content_en: string;
+  content_pl: string;
+  favorited_by: string[];
 }
 
 export default function Mantras() {
@@ -21,20 +23,22 @@ export default function Mantras() {
     TimesNewRoman: require("../assets/fonts/TimesNewRoman.ttf"),
     ...AntDesign.font,
   });
-  const { translate, language } = useLanguage();
+  const { translate } = useLanguage();
   const navigation = useNavigation();
-  const { mantraData, loading, error } = useMantra();
-  const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites();
+  const { mantraData, loading, error, refetchMantra } = useMantra();
+  const { toggleFavorite, isFavorite, refetchFavorites } = useFavorites();
 
   const [currentMantra, setCurrentMantra] = useState<MantraItem>({
     id: "",
     author: "",
-        content: translate("mantraIntro"),
+    content_en: translate("mantraIntro"),
+    content_pl: translate("mantraIntro"),
+    favorited_by: [],
   });
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useLayoutEffect(() => {
-    navigation.setOptions({ headerTitle: translate('mantras') });
+    navigation.setOptions({ headerTitle: translate("mantras") });
   }, [navigation, translate]);
 
   useEffect(() => {
@@ -73,32 +77,24 @@ export default function Mantras() {
   const handlePreviousMantra = () => {
     if (mantraData.length === 0) return;
 
-    const prevIndex = (currentIndex - 1 + mantraData.length) % mantraData.length;
+    const prevIndex =
+      (currentIndex - 1 + mantraData.length) % mantraData.length;
     setCurrentIndex(prevIndex);
     setCurrentMantra(mantraData[prevIndex]);
   };
 
   const handleToggleFavorite = async () => {
     if (!currentMantra.id) return;
-
-    const isCurrentlyFavorite = isFavorite(currentMantra.id);
-    if (isCurrentlyFavorite) {
-      const favoriteItem = favorites.find(fav => fav.id === currentMantra.id);
-      if (favoriteItem) {
-        await removeFavorite(favoriteItem.favoriteId);
-      }
-    } else {
-      const quoteType = currentMantra.id.length === 36 ? 'user' : 'master';
-      await addFavorite(currentMantra, quoteType);
-    }
+    await toggleFavorite(currentMantra.id);
+    await refetchMantra();
+    await refetchFavorites();
   };
-
-  const displayQuote = currentMantra.content;
 
   return (
     <LinearGradient colors={["#101923", "#6f0066ff"]} style={styles.container}>
       <Quote
-        quote={displayQuote}
+        content_en={currentMantra.content_en}
+        content_pl={currentMantra.content_pl}
         author={currentMantra.author}
         gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
         isFavorite={isFavorite(currentMantra.id)}

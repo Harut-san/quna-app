@@ -55,13 +55,13 @@ export default function AddQuoteScreen() {
       return;
     }
 
-    const { error } = await supabase.from("user_content").insert({
+    const { error } = await supabase.from("quotes").insert({
       user_id: user.id,
       content_en: contentEn.trim() || null,
       content_pl: contentPl.trim() || null,
-      language: selectedLanguage,
       author: author.trim() || null,
       category: selectedCategory,
+      is_master: false,
     });
 
     if (error) {

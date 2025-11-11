@@ -1,16 +1,17 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '../constants/supabase';
+import { useState, useEffect, useCallback } from "react";
+import { supabase } from "../constants/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useLanguage } from "../contexts/LanguageContext";
+import { useAuth } from "../contexts/AuthContext";
 
 interface ConversationStarterItem {
   id: string;
   author: string;
   content_en: string;
   content_pl: string;
+  favorited_by: string[];
 }
 
-type QuoteSource = 'master' | 'user' | 'both';
+type QuoteSource = "master" | "user" | "both";
 
 const QUOTE_SOURCE_KEY = "quoteSourcePreference"; // Reusing the same key for consistency
 
@@ -24,81 +25,92 @@ const shuffleArray = (array: any[]) => {
 };
 
 const useConversationStarters = () => {
-  const [conversationStartersData, setConversationStartersData] = useState<ConversationStarterItem[]>([]);
+  const [conversationStartersData, setConversationStartersData] = useState<
+    ConversationStarterItem[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [quoteSourcePreference, setQuoteSourcePreference] = useState<QuoteSource>('both');
-  const { language } = useLanguage();
+  const [quoteSourcePreference, setQuoteSourcePreference] =
+    useState<QuoteSource>("both");
+  const { user } = useAuth();
+
+  const fetchConversationStarters = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    let fetchedConversationStarters: ConversationStarterItem[] = [];
+
+    // Load preference first
+    let currentPreference: QuoteSource = "both"; // Default
+    try {
+      const savedQuoteSource = await AsyncStorage.getItem(QUOTE_SOURCE_KEY);
+      if (savedQuoteSource !== null) {
+        currentPreference = savedQuoteSource as QuoteSource;
+      }
+    } catch (e) {
+      console.error("Failed to load quote source preference", e);
+    }
+    setQuoteSourcePreference(currentPreference);
+
+    try {
+      if (currentPreference === "master" || currentPreference === "both") {
+        const { data: masterData, error: masterError } = await supabase
+          .from("quotes")
+          .select("id, author, content_en, content_pl, favorited_by")
+          .eq("is_master", true)
+          .eq("category", "Conversation Starters");
+
+        if (masterError) {
+          throw masterError;
+        }
+        if (masterData) {
+          fetchedConversationStarters = [
+            ...fetchedConversationStarters,
+            ...masterData,
+          ];
+        }
+      }
+
+      if (
+        (currentPreference === "user" || currentPreference === "both") &&
+        user
+      ) {
+        const { data: userData, error: userError } = await supabase
+          .from("quotes")
+          .select("id, author, content_en, content_pl, favorited_by")
+          .eq("category", "Conversation Starters") // Filter by category 'Conversation Starters'
+          .eq("user_id", user.id)
+          .eq("is_master", false);
+
+        if (userError) {
+          throw userError;
+        }
+        if (userData) {
+          fetchedConversationStarters = [
+            ...fetchedConversationStarters,
+            ...userData,
+          ];
+        }
+      }
+
+      // Shuffle the combined array
+      setConversationStartersData(shuffleArray(fetchedConversationStarters));
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
 
   useEffect(() => {
-    const fetchConversationStarters = async () => {
-      setLoading(true);
-      setError(null);
-      let fetchedConversationStarters: ConversationStarterItem[] = [];
-
-      // Load preference first
-      let currentPreference: QuoteSource = 'both'; // Default
-      try {
-        const savedQuoteSource = await AsyncStorage.getItem(QUOTE_SOURCE_KEY);
-        if (savedQuoteSource !== null) {
-          currentPreference = savedQuoteSource as QuoteSource;
-        }
-      } catch (e) {
-        console.error("Failed to load quote source preference", e);
-      }
-      setQuoteSourcePreference(currentPreference);
-
-      try {
-        if (currentPreference === 'master' || currentPreference === 'both') {
-          const { data: masterData, error: masterError } = await supabase
-            .from('master_quotes')
-            .select('id, author, content_en, content_pl');
-
-          if (masterError) {
-            throw masterError;
-          }
-          if (masterData) {
-            const mappedMasterData = masterData.map(item => ({
-              id: item.id,
-              author: item.author,
-              content: language === 'pl' ? item.content_pl : item.content_en,
-            }));
-            fetchedConversationStarters = [...fetchedConversationStarters, ...mappedMasterData];
-          }
-        }
-
-        if (currentPreference === 'user' || currentPreference === 'both') {
-          const { data: userData, error: userError } = await supabase
-            .from('user_content')
-            .select('id, author, content_en, content_pl')
-            .eq('category', 'Conversation Starters'); // Filter by category 'Conversation Starters'
-
-          if (userError) {
-            throw userError;
-          }
-          if (userData) {
-            const mappedUserData = userData.map(item => ({
-              id: item.id,
-              author: item.author,
-              content: language === 'pl' ? item.content_pl : item.content_en,
-            }));
-            fetchedConversationStarters = [...fetchedConversationStarters, ...mappedUserData];
-          }
-        }
-
-        // Shuffle the combined array
-        setConversationStartersData(shuffleArray(fetchedConversationStarters));
-      } catch (e: any) {
-        setError(e.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchConversationStarters();
-  }, [language]);
+  }, [fetchConversationStarters]);
 
-  return { conversationStartersData, loading, error };
+  return {
+    conversationStartersData,
+    loading,
+    error,
+    refetchConversationStarters: fetchConversationStarters,
+  };
 };
 
 export default useConversationStarters;

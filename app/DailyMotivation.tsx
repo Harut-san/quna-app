@@ -12,27 +12,31 @@ import useFavorites from "../hooks/useFavorites";
 interface MotivationItem {
   id: string;
   author: string;
-  content: string;
+  content_en: string;
+  content_pl: string;
+  favorited_by: string[];
 }
 
 export default function DailyMotivation() {
   const [fontsLoaded] = useFonts({
     TimesNewRoman: require("../assets/fonts/TimesNewRoman.ttf"),
   });
-  const { translate, language } = useLanguage();
+  const { translate } = useLanguage();
   const navigation = useNavigation();
-  const { motivationData, loading, error } = useMotivation();
-  const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites();
+  const { motivationData, loading, error, refetchMotivation } = useMotivation();
+  const { toggleFavorite, isFavorite, refetchFavorites } = useFavorites();
 
   const [currentMotivation, setCurrentMotivation] = useState<MotivationItem>({
     id: "",
     author: "",
-    content: translate("dailyMotivationIntro"),
+    content_en: translate("dailyMotivationIntro"),
+    content_pl: translate("dailyMotivationIntro"),
+    favorited_by: [],
   });
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useLayoutEffect(() => {
-    navigation.setOptions({ headerTitle: translate('dailyMotivation') });
+    navigation.setOptions({ headerTitle: translate("dailyMotivation") });
   }, [navigation, translate]);
 
   useEffect(() => {
@@ -71,32 +75,24 @@ export default function DailyMotivation() {
   const handlePreviousMotivation = () => {
     if (motivationData.length === 0) return;
 
-    const prevIndex = (currentIndex - 1 + motivationData.length) % motivationData.length;
+    const prevIndex =
+      (currentIndex - 1 + motivationData.length) % motivationData.length;
     setCurrentIndex(prevIndex);
     setCurrentMotivation(motivationData[prevIndex]);
   };
 
   const handleToggleFavorite = async () => {
     if (!currentMotivation.id) return;
-
-    const isCurrentlyFavorite = isFavorite(currentMotivation.id);
-    if (isCurrentlyFavorite) {
-      const favoriteItem = favorites.find(fav => fav.id === currentMotivation.id);
-      if (favoriteItem) {
-        await removeFavorite(favoriteItem.favoriteId);
-      }
-    } else {
-      const quoteType = currentMotivation.id.length === 36 ? 'user' : 'master';
-      await addFavorite(currentMotivation, quoteType);
-    }
+    await toggleFavorite(currentMotivation.id);
+    await refetchMotivation();
+    await refetchFavorites();
   };
-
-  const displayQuote = currentMotivation.content;
 
   return (
     <LinearGradient colors={["#101923", "#003a05ff"]} style={styles.container}>
       <Quote
-        quote={displayQuote}
+        content_en={currentMotivation.content_en}
+        content_pl={currentMotivation.content_pl}
         author={currentMotivation.author}
         gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
         isFavorite={isFavorite(currentMotivation.id)}

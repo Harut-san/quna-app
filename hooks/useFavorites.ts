@@ -1,154 +1,77 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../constants/supabase';
 import { useAuth } from "../contexts/AuthContext";
 
-interface WisdomItem {
+export interface FavoriteItem {
   id: string;
-  author: string;
+  author: string | null;
   content_en: string | null;
   content_pl: string | null;
-}
-
-export interface FavoriteItem extends WisdomItem {
-  favoriteId: string; // The ID of the favorite entry in the user_favorites table
-  quoteType: 'master' | 'user';
+  favorited_by: string[];
 }
 
 const useFavorites = () => {
-  const { user } = useAuth(); // Assuming useAuth provides the current user
+  const { user } = useAuth();
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchFavorites = useCallback(async () => {
     if (!user) {
       setFavorites([]);
       setLoading(false);
       return;
     }
 
-    const fetchFavorites = async () => {
-      setLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('user_favorites')
-          .select('id, quote_id, quote_author, quote_content_en, quote_content_pl, quote_type')
-          .eq('user_id', user.id);
-
-        if (error) {
-          throw error;
-        }
-
-        if (data) {
-          const mappedFavorites = data.map(item => ({
-            id: item.quote_id, // Original quote ID
-            favoriteId: item.id, // ID from user_favorites
-            author: item.quote_author,
-            content_en: item.quote_content_en,
-            content_pl: item.quote_content_pl,
-            quoteType: item.quote_type,
-          }));
-          setFavorites(mappedFavorites);
-        }
-      } catch (e: any) {
-        setError(e.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchFavorites();
-
-    // Realtime listener for favorites (optional, but good for reactivity)
-    const channel = supabase
-    .channel('user_favorites_channel')
-    .on(
-      'postgres_changes',
-      { event: '*' , schema: 'public', table: 'user_favorites', filter: `user_id=eq.${user.id}` },
-      payload => {
-        if (payload.eventType === 'INSERT' || payload.eventType === 'DELETE' || payload.eventType === 'UPDATE') {
-          // Re-fetch favorites to ensure we have the latest state
-          fetchFavorites();
-        }
-      }
-    )
-    .subscribe();
-
-  return () => {
-    supabase.removeChannel(channel);
-  };
-
-  }, [user]);
-
-  const addFavorite = async (quote: WisdomItem, quoteType: 'master' | 'user') => {
-    if (!user) {
-      setError("User not authenticated.");
-      return null;
-    }
+    setLoading(true);
     try {
       const { data, error } = await supabase
-        .from('user_favorites')
-        .insert({
-          user_id: user.id,
-          quote_id: quote.id,
-          quote_content_en: quote.content_en,
-          quote_content_pl: quote.content_pl,
-          quote_author: quote.author,
-          quote_type: quoteType,
-        })
-        .select();
+        .from('quotes')
+        .select('id, author, content_en, content_pl, favorited_by')
+        .contains('favorited_by', [user.id]);
 
       if (error) {
         throw error;
       }
 
-      if (data && data.length > 0) {
-        const newFavorite: FavoriteItem = {
-          id: data[0].quote_id,
-          favoriteId: data[0].id,
-          author: data[0].quote_author,
-          content_en: data[0].quote_content_en,
-          content_pl: data[0].quote_content_pl,
-          quoteType: data[0].quote_type,
-        };
-        setFavorites(prev => [...prev, newFavorite]);
-        return newFavorite;
+      if (data) {
+        setFavorites(data as FavoriteItem[]);
       }
     } catch (e: any) {
       setError(e.message);
+    } finally {
+      setLoading(false);
     }
-    return null;
-  };
+  }, [user]);
 
-  const removeFavorite = async (favoriteId: string) => {
+  useEffect(() => {
+    fetchFavorites();
+  }, [fetchFavorites]);
+
+  const toggleFavorite = async (quoteId: string) => {
     if (!user) {
       setError("User not authenticated.");
-      return false;
+      return;
     }
     try {
-      const { error } = await supabase
-        .from('user_favorites')
-        .delete()
-        .eq('id', favoriteId)
-        .eq('user_id', user.id); // Ensure user can only delete their own favorites
+      const { error } = await supabase.rpc('toggle_favorite', { quote_id_to_toggle: quoteId });
 
       if (error) {
         throw error;
       }
-
-      setFavorites(prev => prev.filter(fav => fav.favoriteId !== favoriteId));
-      return true;
+      // Refetch favorites to update the list
+      await fetchFavorites();
     } catch (e: any) {
       setError(e.message);
     }
-    return false;
   };
 
-  const isFavorite = (quoteId: string) => {
+  const isFavorite = useCallback((quoteId: string) => {
     return favorites.some(fav => fav.id === quoteId);
-  };
+  }, [favorites]);
 
-  return { favorites, loading, error, addFavorite, removeFavorite, isFavorite };
+  return { favorites, loading, error, toggleFavorite, isFavorite, refetchFavorites: fetchFavorites };
 };
 
 export default useFavorites;
+

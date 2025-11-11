@@ -12,27 +12,32 @@ import useFavorites from "../hooks/useFavorites";
 interface MindfulnessItem {
   id: string;
   author: string;
-  content: string;
+  content_en: string;
+  content_pl: string;
+  favorited_by: string[];
 }
 
 export default function Mindfulness() {
   const [fontsLoaded] = useFonts({
     TimesNewRoman: require("../assets/fonts/TimesNewRoman.ttf"),
   });
-  const { translate, language } = useLanguage();
+  const { translate } = useLanguage();
   const navigation = useNavigation();
-  const { mindfulnessData, loading, error } = useMindfulness();
-  const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites();
+  const { mindfulnessData, loading, error, refetchMindfulness } =
+    useMindfulness();
+  const { toggleFavorite, isFavorite, refetchFavorites } = useFavorites();
 
   const [currentPrompt, setCurrentPrompt] = useState<MindfulnessItem>({
     id: "",
     author: "",
-    content: translate("mindfulnessIntro"),
+    content_en: translate("mindfulnessIntro"),
+    content_pl: translate("mindfulnessIntro"),
+    favorited_by: [],
   });
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useLayoutEffect(() => {
-    navigation.setOptions({ headerTitle: translate('mindfulnessPrompts') });
+    navigation.setOptions({ headerTitle: translate("mindfulnessPrompts") });
   }, [navigation, translate]);
 
   useEffect(() => {
@@ -71,32 +76,24 @@ export default function Mindfulness() {
   const handlePreviousPrompt = () => {
     if (mindfulnessData.length === 0) return;
 
-    const prevIndex = (currentIndex - 1 + mindfulnessData.length) % mindfulnessData.length;
+    const prevIndex =
+      (currentIndex - 1 + mindfulnessData.length) % mindfulnessData.length;
     setCurrentIndex(prevIndex);
     setCurrentPrompt(mindfulnessData[prevIndex]);
   };
 
   const handleToggleFavorite = async () => {
     if (!currentPrompt.id) return;
-
-    const isCurrentlyFavorite = isFavorite(currentPrompt.id);
-    if (isCurrentlyFavorite) {
-      const favoriteItem = favorites.find(fav => fav.id === currentPrompt.id);
-      if (favoriteItem) {
-        await removeFavorite(favoriteItem.favoriteId);
-      }
-    } else {
-      const quoteType = currentPrompt.id.length === 36 ? 'user' : 'master';
-      await addFavorite(currentPrompt, quoteType);
-    }
+    await toggleFavorite(currentPrompt.id);
+    await refetchMindfulness();
+    await refetchFavorites();
   };
-
-  const displayQuote = currentPrompt.content;
 
   return (
     <LinearGradient colors={["#101923", "#0048acff"]} style={styles.container}>
       <Quote
-        quote={displayQuote}
+        content_en={currentPrompt.content_en}
+        content_pl={currentPrompt.content_pl}
         author={currentPrompt.author}
         gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
         isFavorite={isFavorite(currentPrompt.id)}

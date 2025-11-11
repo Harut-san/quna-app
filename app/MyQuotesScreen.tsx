@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -11,8 +11,7 @@ import CollapsibleSection from "../components/CollapsibleSection";
 import QuoteComponent from "../components/Quote"; // Renamed to avoid conflict with interface
 import { supabase } from "../constants/supabase";
 import useFavorites, { FavoriteItem } from "../hooks/useFavorites";
-
-import { useLanguage } from "../contexts/LanguageContext";
+import { useAuth } from "../contexts/AuthContext";
 
 interface QuoteItem {
   id: string;
@@ -24,52 +23,48 @@ interface QuoteItem {
 }
 
 export default function MyQuotesScreen() {
-  const [addedQuotes, setAddedQuotes] = useState<QuoteItem[]>([]);
+  const { user } = useAuth();
+  const [allUserQuotes, setAllUserQuotes] = useState<QuoteItem[]>([]);
   const [loadingAddedQuotes, setLoadingAddedQuotes] = useState(true);
-  const { language } = useLanguage();
 
   const {
     favorites,
     loading: loadingFavorites,
     error: favoritesError,
-    addFavorite,
-    removeFavorite,
+    toggleFavorite,
     isFavorite,
+    refetchFavorites,
   } = useFavorites();
 
-  useEffect(() => {
-    fetchAddedQuotes();
-  }, [favorites]); // Re-fetch added quotes when favorites change to ensure correct filtering
-
-  async function fetchAddedQuotes() {
-    setLoadingAddedQuotes(true);
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
+  const fetchAddedQuotes = useCallback(async () => {
     if (!user) {
-      Alert.alert("Error", "You must be logged in to view your quotes.");
+      setAllUserQuotes([]);
       setLoadingAddedQuotes(false);
       return;
     }
-
+    setLoadingAddedQuotes(true);
     const { data, error } = await supabase
-      .from("user_content")
+      .from("quotes")
       .select("id, content_en, content_pl, author, category, user_id")
-      .eq("user_id", user.id);
+      .eq("user_id", user.id)
+      .eq("is_master", false);
 
     if (error) {
       Alert.alert("Error fetching added quotes", error.message);
       console.error("Error fetching added quotes:", error);
     } else {
-      // Filter out quotes that are already in favorites
-      const nonFavoriteAddedQuotes = (data || []).filter(
-        (quote: QuoteItem) => !isFavorite(quote.id)
-      );
-      setAddedQuotes(nonFavoriteAddedQuotes);
+      setAllUserQuotes(data || []);
     }
     setLoadingAddedQuotes(false);
-  }
+  }, [user]);
+
+  useEffect(() => {
+    fetchAddedQuotes();
+  }, [fetchAddedQuotes]);
+
+  const nonFavoriteAddedQuotes = useMemo(() => {
+    return allUserQuotes.filter((quote) => !isFavorite(quote.id));
+  }, [allUserQuotes, isFavorite]);
 
   const handleDeleteQuote = async (quoteId: string) => {
     Alert.alert("Delete Quote", "Are you sure you want to delete this quote?", [
@@ -82,7 +77,7 @@ export default function MyQuotesScreen() {
         style: "destructive",
         onPress: async () => {
           const { error } = await supabase
-            .from("user_content")
+            .from("quotes")
             .delete()
             .eq("id", quoteId);
 
@@ -90,47 +85,31 @@ export default function MyQuotesScreen() {
             Alert.alert("Error deleting quote", error.message);
           } else {
             fetchAddedQuotes();
+            refetchFavorites();
           }
         },
       },
     ]);
   };
 
-  const handleToggleFavorite = async (
-    quote: QuoteItem,
-    quoteType: "master" | "user"
-  ) => {
-    const isCurrentlyFavorite = isFavorite(quote.id);
-    if (isCurrentlyFavorite) {
-      const favoriteItem = favorites.find((fav) => fav.id === quote.id);
-      if (favoriteItem) {
-        await removeFavorite(favoriteItem.favoriteId);
-      }
-    } else {
-      await addFavorite(quote, quoteType);
-    }
-  };
-
-  const handleUnfavorite = async (favoriteId: string) => {
-    await removeFavorite(favoriteId);
-  };
-
   const renderQuoteItem = ({ item }: { item: QuoteItem }) => (
     <QuoteComponent
-      quote={language === "pl" ? item.content_pl : item.content_en}
+      content_en={item.content_en}
+      content_pl={item.content_pl}
       author={item.author}
       isFavorite={isFavorite(item.id)}
-      onToggleFavorite={() => handleToggleFavorite(item, "user")} // Assuming user_content quotes are 'user' type
+      onToggleFavorite={() => toggleFavorite(item.id)}
       onDelete={() => handleDeleteQuote(item.id)}
     />
   );
 
   const renderFavoriteQuoteItem = ({ item }: { item: FavoriteItem }) => (
     <QuoteComponent
-      quote={language === 'pl' ? item.content_pl : item.content_en}
+      content_en={item.content_en}
+      content_pl={item.content_pl}
       author={item.author}
       isFavorite={true} // Always true for favorites screen
-      onToggleFavorite={() => handleUnfavorite(item.favoriteId)}
+      onToggleFavorite={() => toggleFavorite(item.id)}
     />
   );
 
@@ -150,14 +129,14 @@ export default function MyQuotesScreen() {
   return (
     <View style={styles.container}>
       {/* Added Quotes Section */}
-      <CollapsibleSection title={`Added Quotes (${addedQuotes.length})`}>
-        {addedQuotes.length === 0 ? (
+      <CollapsibleSection title={`Added Quotes (${nonFavoriteAddedQuotes.length})`}>
+        {nonFavoriteAddedQuotes.length === 0 ? (
           <Text style={styles.noQuotesText}>
-            You haven't added any quotes yet.
+            You haven&apos;t added any quotes yet.
           </Text>
         ) : (
           <FlatList
-            data={addedQuotes}
+            data={nonFavoriteAddedQuotes}
             keyExtractor={(item) => item.id}
             renderItem={renderQuoteItem}
             contentContainerStyle={styles.listContentContainer}
@@ -169,7 +148,7 @@ export default function MyQuotesScreen() {
       <CollapsibleSection title={`Favorite Quotes (${favorites.length})`}>
         {favorites.length === 0 ? (
           <Text style={styles.noQuotesText}>
-            You haven't favorited any quotes yet.
+            You haven&apos;t favorited any quotes yet.
           </Text>
         ) : (
           <FlatList

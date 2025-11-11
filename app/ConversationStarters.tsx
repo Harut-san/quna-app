@@ -13,7 +13,9 @@ import { AntDesign } from "@expo/vector-icons";
 interface ConversationStarterItem {
   id: string;
   author: string;
-  content: string;
+  content_en: string;
+  content_pl: string;
+  favorited_by: string[];
 }
 
 export default function ConversationStarters() {
@@ -21,20 +23,30 @@ export default function ConversationStarters() {
     TimesNewRoman: require("../assets/fonts/TimesNewRoman.ttf"),
     ...AntDesign.font,
   });
-  const { translate, language } = useLanguage();
+  const { translate } = useLanguage();
   const navigation = useNavigation();
-  const { conversationStartersData, loading, error } = useConversationStarters();
-  const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites();
+  const {
+    conversationStartersData,
+    loading,
+    error,
+    refetchConversationStarters,
+  } = useConversationStarters();
+  const { toggleFavorite, isFavorite, refetchFavorites } = useFavorites();
 
-  const [currentStarter, setCurrentStarter] = useState<ConversationStarterItem>({
-    id: "",
-    author: "",
-    content: translate("conversationStarterIntro"),
-  });
+  const [currentStarter, setCurrentStarter] =
+    useState<ConversationStarterItem>({
+      id: "",
+      author: "",
+      content_en: translate("conversationStarterIntro"),
+      content_pl: translate("conversationStarterIntro"),
+      favorited_by: [],
+    });
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useLayoutEffect(() => {
-    navigation.setOptions({ headerTitle: translate('conversationStarters') });
+    navigation.setOptions({
+      headerTitle: translate("conversationStarters"),
+    });
   }, [navigation, translate]);
 
   useEffect(() => {
@@ -73,32 +85,25 @@ export default function ConversationStarters() {
   const handlePreviousStarter = () => {
     if (conversationStartersData.length === 0) return;
 
-    const prevIndex = (currentIndex - 1 + conversationStartersData.length) % conversationStartersData.length;
+    const prevIndex =
+      (currentIndex - 1 + conversationStartersData.length) %
+      conversationStartersData.length;
     setCurrentIndex(prevIndex);
     setCurrentStarter(conversationStartersData[prevIndex]);
   };
 
   const handleToggleFavorite = async () => {
     if (!currentStarter.id) return;
-
-    const isCurrentlyFavorite = isFavorite(currentStarter.id);
-    if (isCurrentlyFavorite) {
-      const favoriteItem = favorites.find(fav => fav.id === currentStarter.id);
-      if (favoriteItem) {
-        await removeFavorite(favoriteItem.favoriteId);
-      }
-    } else {
-      const quoteType = currentStarter.id.length === 36 ? 'user' : 'master';
-      await addFavorite(currentStarter, quoteType);
-    }
+    await toggleFavorite(currentStarter.id);
+    await refetchConversationStarters();
+    await refetchFavorites();
   };
-
-  const displayQuote = currentStarter.content;
 
   return (
     <LinearGradient colors={["#101923", "#00565dff"]} style={styles.container}>
       <Quote
-        quote={displayQuote}
+        content_en={currentStarter.content_en}
+        content_pl={currentStarter.content_pl}
         author={currentStarter.author}
         gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
         isFavorite={isFavorite(currentStarter.id)}
@@ -108,7 +113,9 @@ export default function ConversationStarters() {
         <Button
           label={translate("previous")}
           onPress={handlePreviousStarter}
-          theme={conversationStartersData.length === 0 ? "disabled" : "secondary"}
+          theme={
+            conversationStartersData.length === 0 ? "disabled" : "secondary"
+          }
         />
 
         <Button
@@ -127,6 +134,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingBottom: 100, // Add padding to prevent content from being hidden by the sticky button
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#101923",
+  },
+  errorText: {
+    color: "red",
+    fontSize: 18,
   },
   textBackgroundGradient: {
     borderRadius: 30,
@@ -147,5 +164,4 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     alignItems: "center",
   },
-
 });

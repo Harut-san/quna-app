@@ -19,7 +19,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="about"
         options={{
-          headerTitle: "QUNA",
+          headerTitle: translate("quna"),
           tabBarLabel(props) {
             return null; // Hide tab label
           },
@@ -36,7 +36,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          headerTitle: "Home",
+          headerTitle: translate("home"),
           tabBarLabel(props) {
             return null; // Hide tab label
           },

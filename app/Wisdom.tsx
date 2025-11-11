@@ -9,35 +9,34 @@ import { useNavigation } from "@react-navigation/native";
 import useWisdom from "../hooks/useWisdom";
 import useFavorites from "../hooks/useFavorites";
 
-
 interface WisdomItem {
   id: string;
   author: string;
-  content: string;
-  content_en: string | null;
-  content_pl: string | null;
+  content_en: string;
+  content_pl: string;
+  favorited_by: string[];
 }
 
 export default function Wisdom() {
   const [fontsLoaded] = useFonts({
     TimesNewRoman: require("../assets/fonts/TimesNewRoman.ttf"),
   });
-  const { translate, language } = useLanguage();
+  const { translate } = useLanguage();
   const navigation = useNavigation();
-  const { wisdomData, loading, error } = useWisdom();
-  const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites();
+  const { wisdomData, loading, error, refetchWisdom } = useWisdom();
+  const { toggleFavorite, isFavorite, refetchFavorites } = useFavorites();
 
   const [currentWisdom, setCurrentWisdom] = useState<WisdomItem>({
     id: "",
     author: "",
-    content: translate("wisdomIntro"),
     content_en: translate("wisdomIntro"),
     content_pl: translate("wisdomIntro"),
+    favorited_by: [],
   });
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useLayoutEffect(() => {
-    navigation.setOptions({ headerTitle: translate('wisdom') });
+    navigation.setOptions({ headerTitle: translate("wisdom") });
   }, [navigation, translate]);
 
   useEffect(() => {
@@ -76,35 +75,24 @@ export default function Wisdom() {
   const handlePreviousWisdom = () => {
     if (wisdomData.length === 0) return;
 
-    const prevIndex = (currentIndex - 1 + wisdomData.length) % wisdomData.length;
+    const prevIndex =
+      (currentIndex - 1 + wisdomData.length) % wisdomData.length;
     setCurrentIndex(prevIndex);
     setCurrentWisdom(wisdomData[prevIndex]);
   };
 
   const handleToggleFavorite = async () => {
     if (!currentWisdom.id) return;
-
-    const isCurrentlyFavorite = isFavorite(currentWisdom.id);
-    if (isCurrentlyFavorite) {
-      const favoriteItem = favorites.find(fav => fav.id === currentWisdom.id);
-      if (favoriteItem) {
-        await removeFavorite(favoriteItem.favoriteId);
-      }
-    } else {
-      // Determine quoteType based on whether it's a user_content or master_quotes item
-      // This is a simplification; a more robust solution might involve storing quoteType in wisdomData
-      const quoteType = currentWisdom.id.length === 36 ? 'user' : 'master'; // Assuming UUIDs are user_content and shorter IDs are master_quotes
-      await addFavorite(currentWisdom, quoteType);
-    }
+    await toggleFavorite(currentWisdom.id);
+    await refetchWisdom();
+    await refetchFavorites();
   };
-
-  const displayQuote = currentWisdom.content;
 
   return (
     <LinearGradient colors={["#101923", "#3a0000"]} style={styles.container}>
-
       <Quote
-        quote={displayQuote}
+        content_en={currentWisdom.content_en}
+        content_pl={currentWisdom.content_pl}
         author={currentWisdom.author}
         gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
         isFavorite={isFavorite(currentWisdom.id)}
@@ -155,7 +143,3 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
-
-
-
-

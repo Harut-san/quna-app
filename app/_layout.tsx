@@ -3,12 +3,11 @@ import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { LogBox, SafeAreaView } from "react-native";
+import { SafeAreaView } from "react-native";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 import { LanguageProvider } from "../contexts/LanguageContext";
 import AuthScreen from "./AuthScreen";
 
-LogBox.ignoreAllLogs(true); // Ignore all log notifications
 
 function RootLayoutContent() {
   const { session, loading: authLoading } = useAuth();
@@ -22,7 +21,7 @@ function RootLayoutContent() {
   }
 
   return (
-    <LanguageProvider>
+    <>
       <StatusBar style="light" />
       {session && session.user ? (
         <Stack>
@@ -68,15 +67,17 @@ function RootLayoutContent() {
           <AuthScreen />
         </SafeAreaView>
       )}
-    </LanguageProvider>
+    </>
   );
 }
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <RootLayoutContent />
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <RootLayoutContent />
+      </AuthProvider>
+    </LanguageProvider>
   );
 }
 

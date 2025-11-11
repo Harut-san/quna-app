@@ -1,13 +1,16 @@
+import { Feather } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import { useLanguage } from "../contexts/LanguageContext";
 
 const heartFilled = require("../assets/images/heart-filled.svg");
 const heartOutlined = require("../assets/images/heart-outlined.svg");
 
 interface QuoteProps {
-  quote: string;
+  content_en: string;
+  content_pl: string;
   author?: string | null;
   gradientColors?: string[];
   isFavorite?: boolean;
@@ -15,15 +18,18 @@ interface QuoteProps {
   onDelete?: () => void;
 }
 
-import { Feather } from "@expo/vector-icons";
 const Quote: React.FC<QuoteProps> = ({
-  quote,
+  content_en,
+  content_pl,
   author,
   gradientColors,
   isFavorite,
   onToggleFavorite,
   onDelete,
 }) => {
+  const { language } = useLanguage();
+  const quote = language === "pl" ? content_pl : content_en;
+
   const defaultTextStyle = {
     fontFamily: "TimesNewRoman",
     textAlign: "center",
