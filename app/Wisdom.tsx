@@ -84,20 +84,20 @@ export default function Wisdom() {
   const handleToggleFavorite = async () => {
     if (!currentWisdom.id) return;
     await toggleFavorite(currentWisdom.id);
-    await refetchWisdom();
-    await refetchFavorites();
   };
 
   return (
     <LinearGradient colors={["#101923", "#3a0000"]} style={styles.container}>
-      <Quote
-        content_en={currentWisdom.content_en}
-        content_pl={currentWisdom.content_pl}
-        author={currentWisdom.author}
-        gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
-        isFavorite={isFavorite(currentWisdom.id)}
-        onToggleFavorite={handleToggleFavorite}
-      />
+      <View style={{ width: "100%", paddingHorizontal: 20 }}>
+        <Quote
+          content_en={currentWisdom.content_en}
+          content_pl={currentWisdom.content_pl}
+          author={currentWisdom.author}
+          gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
+          isFavorite={isFavorite(currentWisdom.id)}
+          onToggleFavorite={handleToggleFavorite}
+        />
+      </View>
       <View style={styles.buttonContainerSticky}>
         <Button
           colors={["#cfcfcf28", "#57575744"]}

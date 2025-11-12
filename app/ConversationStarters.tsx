@@ -95,20 +95,20 @@ export default function ConversationStarters() {
   const handleToggleFavorite = async () => {
     if (!currentStarter.id) return;
     await toggleFavorite(currentStarter.id);
-    await refetchConversationStarters();
-    await refetchFavorites();
   };
 
   return (
     <LinearGradient colors={["#101923", "#00565dff"]} style={styles.container}>
-      <Quote
-        content_en={currentStarter.content_en}
-        content_pl={currentStarter.content_pl}
-        author={currentStarter.author}
-        gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
-        isFavorite={isFavorite(currentStarter.id)}
-        onToggleFavorite={handleToggleFavorite}
-      />
+      <View style={{ width: "100%", paddingHorizontal: 20 }}>
+        <Quote
+          content_en={currentStarter.content_en}
+          content_pl={currentStarter.content_pl}
+          author={currentStarter.author}
+          gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
+          isFavorite={isFavorite(currentStarter.id)}
+          onToggleFavorite={handleToggleFavorite}
+        />
+      </View>
       <View style={styles.buttonContainerSticky}>
         <Button
           label={translate("previous")}

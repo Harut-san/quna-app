@@ -84,20 +84,20 @@ export default function DailyMotivation() {
   const handleToggleFavorite = async () => {
     if (!currentMotivation.id) return;
     await toggleFavorite(currentMotivation.id);
-    await refetchMotivation();
-    await refetchFavorites();
   };
 
   return (
     <LinearGradient colors={["#101923", "#003a05ff"]} style={styles.container}>
-      <Quote
-        content_en={currentMotivation.content_en}
-        content_pl={currentMotivation.content_pl}
-        author={currentMotivation.author}
-        gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
-        isFavorite={isFavorite(currentMotivation.id)}
-        onToggleFavorite={handleToggleFavorite}
-      />
+      <View style={{ width: "100%", paddingHorizontal: 20 }}>
+        <Quote
+          content_en={currentMotivation.content_en}
+          content_pl={currentMotivation.content_pl}
+          author={currentMotivation.author}
+          gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
+          isFavorite={isFavorite(currentMotivation.id)}
+          onToggleFavorite={handleToggleFavorite}
+        />
+      </View>
       <View style={styles.buttonContainerSticky}>
         <Button
           label={translate("previous")}

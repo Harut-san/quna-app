@@ -85,20 +85,20 @@ export default function Mindfulness() {
   const handleToggleFavorite = async () => {
     if (!currentPrompt.id) return;
     await toggleFavorite(currentPrompt.id);
-    await refetchMindfulness();
-    await refetchFavorites();
   };
 
   return (
     <LinearGradient colors={["#101923", "#0048acff"]} style={styles.container}>
-      <Quote
-        content_en={currentPrompt.content_en}
-        content_pl={currentPrompt.content_pl}
-        author={currentPrompt.author}
-        gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
-        isFavorite={isFavorite(currentPrompt.id)}
-        onToggleFavorite={handleToggleFavorite}
-      />
+      <View style={{ width: "100%", paddingHorizontal: 20 }}>
+        <Quote
+          content_en={currentPrompt.content_en}
+          content_pl={currentPrompt.content_pl}
+          author={currentPrompt.author}
+          gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
+          isFavorite={isFavorite(currentPrompt.id)}
+          onToggleFavorite={handleToggleFavorite}
+        />
+      </View>
       <View style={styles.buttonContainerSticky}>
         <Button
           label={translate("previous")}

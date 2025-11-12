@@ -86,20 +86,20 @@ export default function Mantras() {
   const handleToggleFavorite = async () => {
     if (!currentMantra.id) return;
     await toggleFavorite(currentMantra.id);
-    await refetchMantra();
-    await refetchFavorites();
   };
 
   return (
     <LinearGradient colors={["#101923", "#6f0066ff"]} style={styles.container}>
-      <Quote
-        content_en={currentMantra.content_en}
-        content_pl={currentMantra.content_pl}
-        author={currentMantra.author}
-        gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
-        isFavorite={isFavorite(currentMantra.id)}
-        onToggleFavorite={handleToggleFavorite}
-      />
+      <View style={{ width: "100%", paddingHorizontal: 20 }}>
+        <Quote
+          content_en={currentMantra.content_en}
+          content_pl={currentMantra.content_pl}
+          author={currentMantra.author}
+          gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
+          isFavorite={isFavorite(currentMantra.id)}
+          onToggleFavorite={handleToggleFavorite}
+        />
+      </View>
       <View style={styles.buttonContainerSticky}>
         <Button
           label={translate("previous")}

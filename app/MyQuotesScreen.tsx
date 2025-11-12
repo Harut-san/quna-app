@@ -100,6 +100,7 @@ export default function MyQuotesScreen() {
       isFavorite={isFavorite(item.id)}
       onToggleFavorite={() => toggleFavorite(item.id)}
       onDelete={() => handleDeleteQuote(item.id)}
+      gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
     />
   );
 
@@ -110,6 +111,7 @@ export default function MyQuotesScreen() {
       author={item.author}
       isFavorite={true} // Always true for favorites screen
       onToggleFavorite={() => toggleFavorite(item.id)}
+      gradientColors={["rgba(255,255,255,0.1)", "rgba(255,255,255,0.05)"]}
     />
   );
 
@@ -207,7 +209,7 @@ const styles = StyleSheet.create({
   },
   listContentContainer: {
     paddingBottom: 10,
-    alignItems: "center",
+    paddingHorizontal: 0,
   },
   quoteItem: {
     backgroundColor: "#25292e",

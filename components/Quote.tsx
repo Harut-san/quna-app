@@ -72,12 +72,10 @@ const styles = StyleSheet.create({
   textBackgroundGradient: {
     borderRadius: 30,
     padding: 20,
-    marginHorizontal: 20,
     marginBottom: 20,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
-    width: "86%",
     borderColor: "#c5c5c533",
     paddingTop: 50,
     paddingBottom: 50,
